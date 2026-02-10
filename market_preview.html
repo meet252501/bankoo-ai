@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Bankoo Market Prime</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #050810;
+            --glass-panel: rgba(20, 25, 40, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --neon-blue: #00f2ff;
+            --neon-purple: #bd00ff;
+            --neon-green: #00ff9d;
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            background-image: radial-gradient(circle at 10% 20%, rgba(189, 0, 255, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 242, 255, 0.1) 0%, transparent 20%);
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ___ HEADER BRANDING ___ */
+        .app-header {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            border-bottom: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .brand-logo {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .brand-tag {
+            background: rgba(255, 255, 255, 0.1);
+            font-size: 0.7rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* ___ MAIN GRID ___ */
+        .market-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 260px 1fr 320px;
+            gap: 20px;
+            padding: 20px 40px;
+            height: calc(100vh - 70px);
+        }
+
+        /* COMMON PANEL STYLE */
+        .panel {
+            background: var(--glass-panel);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        /* ___ 1. LEFT SIDEBAR ___ */
+        .sidebar {
+            padding: 20px;
+            gap: 15px;
+        }
+
+        .nav-item {
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.03);
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(0, 242, 255, 0.1), transparent);
+            border-left: 3px solid var(--neon-blue);
+        }
+
+        .ticker-symbol {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .ticker-name {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .ticker-price {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        /* ___ 2. CENTER STAGE ___ */
+        .main-stage {
+            padding: 30px;
+            position: relative;
+            gap: 20px;
+        }
+
+        .price-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .big-price {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(180deg, #fff, #bbb);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Chart Box */
+        .chart-box {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--glass-border);
+            position: relative;
+        }
+
+        /* Feature Tabs */
+        .feature-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .tab {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid transparent;
+            transition: 0.2s;
+        }
+
+        .tab.active {
+            background: var(--neon-blue);
+            color: black;
+            font-weight: 700;
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.4);
+        }
+
+        /* ___ 3. RIGHT TOOLS ___ */
+        .tools-panel {
+            padding: 25px;
+            overflow-y: auto;
+            gap: 30px;
+        }
+
+        .tool-section h3 {
+            font-size: 0.8rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Vibe Bar */
+        .vibe-card {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            margin-bottom: 20px;
+        }
+
+        .vibe-meter {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .vibe-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-green), var(--neon-blue));
+            width: 75%;
+            box-shadow: 0 0 15px var(--neon-green);
+            animation: pulse-glow 2s infinite;
+        }
+
+        /* ROI Inputs */
+        .roi-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .modern-input {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            width: 100%;
+            font-family: 'JetBrains Mono', monospace;
+            text-align: center;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .modern-input:focus {
+            border-color: var(--neon-purple);
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            background: linear-gradient(90deg, var(--neon-purple), #ff0055);
+            border: none;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 5px 15px rgba(189, 0, 255, 0.2);
+        }
+
+        .action-btn:hover {
+            transform: scale(1.02);
+            filter: brightness(1.1);
+        }
+
+        @keyframes pulse-glow {
+            0% {
+                opacity: 0.8;
+                box-shadow: 0 0 10px var(--neon-green);
+            }
+
+            50% {
+                opacity: 1;
+                box-shadow: 0 0 20px var(--neon-green);
+            }
+
+            100% {
+                opacity: 0.8;
+                box-shadow: 0 0 10px var(--neon-green);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- BRANDING HEADER -->
+    <header class="app-header">
+        <div class="brand">
+            <div style="font-size: 1.5rem;">💎</div>
+            <div>
+                <div class="brand-logo" contenteditable="true" spellcheck="false">BANKOO PRIME</div>
+            </div>
+            <span class="brand-tag">v2.5 ULTIMATE</span>
+        </div>
+        <div style="display: flex; gap: 20px; font-size: 0.9rem; color: var(--text-muted);">
+            <span>📶 <span style="color: var(--neon-green);">System Online</span></span>
+            <span>🕒 16:21 UTC</span>
+        </div>
+    </header>
+
+    <div class="market-grid">
+        <!-- 1. NAVIGATION -->
+        <aside class="panel sidebar">
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 10px; padding-left: 10px;">MARKETS
+            </div>
+
+            <div class="nav-item active" onclick="selectAsset('BTC')">
+                <div>
+                    <div class="ticker-symbol">BTC-USD</div>
+                    <div class="ticker-name">Bitcoin</div>
+                </div>
+                <div class="ticker-price" style="color: var(--neon-green);">$88,430</div>
+            </div>
+
+            <div class="nav-item" onclick="selectAsset('ETH')">
+                <div>
+                    <div class="ticker-symbol">ETH-USD</div>
+                    <div class="ticker-name">Ethereum</div>
+                </div>
+                <div class="ticker-price" style="color: var(--neon-blue);">$2,940</div>
+            </div>
+
+            <div class="nav-item" onclick="selectAsset('NVDA')">
+                <div>
+                    <div class="ticker-symbol">NVDA</div>
+                    <div class="ticker-name">NVIDIA</div>
+                </div>
+                <div class="ticker-price" style="color: var(--neon-green);">$145.20</div>
+            </div>
+
+            <div style="margin-top: auto;">
+                <input type="text" class="modern-input" placeholder="🔍 Add Symbol..." style="text-align: left;">
+            </div>
+        </aside>
+
+        <!-- 2. CENTER ANALYSIS -->
+        <main class="panel main-stage">
+            <!-- Header -->
+            <div class="price-header">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span id="mainSym"
+                            style="font-size: 1.5rem; font-weight: 700; color: var(--text-muted);">BTC-USD</span>
+                        <span
+                            style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px; font-size: 0.7rem;">LIVE</span>
+                    </div>
+                    <div class="big-price" id="mainPrice">$88,430.18</div>
+                    <div
+                        style="color: var(--neon-green); font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                        ▲ +4.52% <span style="font-size: 0.8rem; color: var(--text-muted);">($3,822.10 today)</span>
+                    </div>
+                </div>
+
+                <!-- Timeframe Tabs -->
+                <div class="feature-tabs">
+                    <div class="tab">1H</div>
+                    <div class="tab">1D</div>
+                    <div class="tab active">1M</div>
+                    <div class="tab">1Y</div>
+                    <div class="tab">ALL</div>
+                </div>
+            </div>
+
+            <!-- Chart -->
+            <div class="chart-box">
+                <canvas id="glossChart"></canvas>
+            </div>
+        </main>
+
+        <!-- 3. RIGHT FEATURES -->
+        <aside class="panel tools-panel">
+
+            <!-- Vibe Check Feature -->
+            <div class="tool-section">
+                <h3>🧠 SENTIMENT AI</h3>
+                <div class="vibe-card">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="font-weight: 600;">Overall Vibe</span>
+                        <span style="color: var(--neon-green); font-weight: 800;">EXTREME GREED</span>
+                    </div>
+                    <div class="vibe-meter">
+                        <div class="vibe-fill"></div>
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5;">
+                        "Social volume is up 400% today. Positive mentions dominate Twitter & Reddit."
+                    </div>
+                </div>
+            </div>
+
+            <!-- ROI Feature -->
+            <div class="tool-section">
+                <h3>⏳ TIME MACHINE</h3>
+                <div class="vibe-card" style="border-color: rgba(189, 0, 255, 0.3);">
+                    <div style="margin-bottom: 10px; font-size: 0.9rem; color: #ccc;">Investment Amount ($)</div>
+                    <div class="roi-group">
+                        <input type="number" class="modern-input" value="1000">
+                    </div>
+                    <div style="margin-bottom: 10px; font-size: 0.9rem; color: #ccc;">Years Ago</div>
+                    <div class="roi-group">
+                        <input type="number" class="modern-input" value="1">
+                    </div>
+                    <button class="action-btn">CALCULATE RETURNS</button>
+
+                    <div style="margin-top: 15px; text-align: center; display: none;" id="roiRes">
+                        <div style="font-size: 1.5rem; font-weight: 800; color: var(--neon-green);">+$3,250</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature List (For User Reference) -->
+            <div class="tool-section">
+                <h3>⚡ APP FEATURES</h3>
+                <ul style="font-size: 0.8rem; color: var(--text-muted); padding-left: 20px; line-height: 1.6;">
+                    <li>Real-time Websocket Data</li>
+                    <li>Neural Sentiment Analysis</li>
+                    <li>Historical ROI Calculator</li>
+                    <li>Interactive Charting</li>
+                </ul>
+            </div>
+
+        </aside>
+    </div>
+
+    <!-- MOCK INTERACTIVITY SCRIPT -->
+    <script>
+        // Chart Init
+        const ctx = document.getElementById('glossChart').getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(0, 242, 255, 0.5)');
+        gradient.addColorStop(1, 'rgba(0, 242, 255, 0.0)');
+
+        let chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    data: [82000, 83500, 81000, 84000, 86000, 85500, 88430],
+                    borderColor: '#00f2ff',
+                    backgroundColor: gradient,
+                    borderWidth: 3,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    pointHoverRadius: 8,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { display: false },
+                    y: { display: false }
+                }
+            }
+        });
+
+        // Simple Tab Switch Logic
+        function selectAsset(sym) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            // Mock Text Update
+            if (sym === 'BTC') {
+                document.getElementById('mainSym').innerText = 'BTC-USD';
+                document.getElementById('mainPrice').innerText = '$88,430.18';
+                updateChart([82000, 83500, 81000, 84000, 86000, 85500, 88430], '#00f2ff');
+            } else if (sym === 'ETH') {
+                document.getElementById('mainSym').innerText = 'ETH-USD';
+                document.getElementById('mainPrice').innerText = '$2,940.50';
+                updateChart([2800, 2750, 2600, 2850, 2900, 2920, 2940], '#bd00ff');
+            } else {
+                document.getElementById('mainSym').innerText = 'NVDA';
+                document.getElementById('mainPrice').innerText = '$145.20';
+                updateChart([130, 135, 134, 138, 140, 142, 145], '#00ff9d');
+            }
+        }
+
+        function updateChart(data, color) {
+            chart.data.datasets[0].data = data;
+            chart.data.datasets[0].borderColor = color;
+            const grad = ctx.createLinearGradient(0, 0, 0, 400);
+            grad.addColorStop(0, color.replace(')', ', 0.5)').replace('rgb', 'rgba')); // Simple hack for mock
+            grad.addColorStop(1, 'rgba(0,0,0,0)');
+            chart.data.datasets[0].backgroundColor = grad;
+            chart.update();
+        }
+
+        // ROI Button
+        document.querySelector('.action-btn').addEventListener('click', () => {
+            document.getElementById('roiRes').style.display = 'block';
+        });
+    </script>
+</body>
+
+</html>

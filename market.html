@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market Insight | Bankoo AI</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a1a0e 0%, #1a2d1f 100%);
+            color: #f1f5f9;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .nav-header {
+            background: rgba(10, 26, 14, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: #00ff88;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-btn {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: rgba(0, 255, 136, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 30px;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+        }
+
+        .ticker-search {
+            display: flex;
+            gap: 15px;
+            max-width: 600px;
+            margin: 0 auto 50px;
+        }
+
+        .ticker-input {
+            flex: 1;
+            background: rgba(20, 30, 24, 0.8);
+            border: 2px solid rgba(0, 255, 136, 0.3);
+            color: white;
+            padding: 18px 24px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            text-transform: uppercase;
+            outline: none;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .search-btn {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            border: none;
+            color: #0a1a0e;
+            padding: 18px 40px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 255, 136, 0.4);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(20, 30, 24, 0.6);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 255, 136, 0.2);
+            border-color: #00ff88;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 13px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            color: #00ff88;
+            font-size: 32px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .stat-change {
+            font-size: 14px;
+            margin-top: 8px;
+            font-weight: 600;
+        }
+
+        .positive {
+            color: #00ff88;
+        }
+
+        .negative {
+            color: #ff006e;
+        }
+
+        .quick-tickers {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .quick-tickers h3 {
+            color: #00ff88;
+            margin-bottom: 20px;
+        }
+
+        .ticker-chip {
+            display: inline-block;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+            padding: 10px 20px;
+            border-radius: 20px;
+            margin: 5px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .ticker-chip:hover {
+            background: rgba(0, 255, 136, 0.2);
+            border-color: #00ff88;
+            transform: translateY(-2px);
+        }
+
+        .info-panel {
+            background: rgba(20, 30, 24, 0.6);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 16px;
+            padding: 30px;
+        }
+
+        .info-panel h3 {
+            color: #00ff88;
+            margin-bottom: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.1);
+        }
+
+        .info-label {
+            color: #94a3b8;
+        }
+
+        .info-value {
+            color: #f1f5f9;
+            font-weight: 600;
+        }
+
+        /* MAXIMUM PREMIUM ENHANCEMENTS */
+        @keyframes ticker-pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.02);
+            }
+        }
+
+        .stat-card {
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            border-radius: 18px;
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.3s;
+        }
+
+        .stat-card:hover::before {
+            opacity: 0.3;
+        }
+
+        .stat-value {
+            animation: ticker-pulse 2s ease-in-out infinite;
+        }
+
+        .ticker-input {
+            transition: all 0.3s;
+        }
+
+        .ticker-input:focus {
+            border-color: #00ff88;
+            box-shadow: 0 0 0 4px rgba(0, 255, 136, 0.2), 0 0 30px rgba(0, 255, 136, 0.3);
+            transform: scale(1.01);
+        }
+
+        .search-btn,
+        .ticker-chip {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .search-btn::after,
+        .ticker-chip::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .search-btn:active::after,
+        .ticker-chip:active::after {
+            width: 400px;
+            height: 400px;
+        }
+
+        @keyframes data-stream {
+            0% {
+                transform: translateX(-100%) translateY(0);
+            }
+
+            100% {
+                transform: translateX(100%) translateY(0);
+            }
+        }
+
+        .info-panel {
+            position: relative;
+            backdrop-filter: blur(15px);
+            overflow: hidden;
+        }
+
+        .info-panel::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ff88, transparent);
+            animation: data-stream 2s infinite;
+        }
+
+        .info-row {
+            transition: all 0.2s;
+        }
+
+        .info-row:hover {
+            background: rgba(0, 255, 136, 0.05);
+            transform: translateX(5px);
+            padding-left: 10px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 25% 35%, rgba(0, 255, 136, 0.04), transparent 50%),
+                radial-gradient(circle at 75% 65%, rgba(0, 204, 106, 0.04), transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .positive {
+            animation: fade-glow 1.5s ease-in-out infinite;
+        }
+
+        @keyframes fade-glow {
+
+            0%,
+            100% {
+                opacity: 1;
+                text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+            }
+
+            50% {
+                opacity: 0.8;
+                textShadow: 0 0 20px rgba(0, 255, 136, 0.8);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="nav-header">
+        <div class="logo">📈 MARKET INSIGHT</div>
+        <div class="nav-links">
+            <button class="nav-btn" onclick="window.location.href='bankoo_ui.html'">🏠 Home</button>
+            <button class="nav-btn" onclick="window.location.href='doc_genius.html'">📚 PDF</button>
+            <button class="nav-btn" onclick="window.location.href='analytics.html'">📊 Analytics</button>
+            <button class="nav-btn" onclick="window.location.href='movies.html'">🎬 Movies</button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Hero -->
+        <div class="hero">
+            <div style="font-size: 80px; margin-bottom: 20px;">💹</div>
+            <h1>Market Insight Pro</h1>
+            <p style="color: #a0d4b4; font-size: 18px;">Real-time stock analysis powered by Yahoo Finance & AI</p>
+        </div>
+
+        <!-- Ticker Search -->
+        <div class="ticker-search">
+            <input type="text" class="ticker-input" id="tickerInput" placeholder="Enter ticker (e.g., AAPL)"
+                onkeydown="if(event.key==='Enter')analyzeStock()">
+            <button class="search-btn" onclick="analyzeStock()">📊 Analyze</button>
+        </div>
+
+        <!-- Quick Tickers -->
+        <div class="quick-tickers">
+            <h3>⚡ Popular Tickers</h3>
+            <span class="ticker-chip" onclick="quickAnalyze('AAPL')">AAPL</span>
+            <span class="ticker-chip" onclick="quickAnalyze('TSLA')">TSLA</span>
+            <span class="ticker-chip" onclick="quickAnalyze('GOOGL')">GOOGL</span>
+            <span class="ticker-chip" onclick="quickAnalyze('MSFT')">MSFT</span>
+            <span class="ticker-chip" onclick="quickAnalyze('AMZN')">AMZN</span>
+            <span class="ticker-chip" onclick="quickAnalyze('META')">META</span>
+            <span class="ticker-chip" onclick="quickAnalyze('NVDA')">NVDA</span>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid" id="statsGrid" style="display: none;">
+            <div class="stat-card">
+                <div class="stat-label">Current Price</div>
+                <div class="stat-value" id="currentPrice">-</div>
+                <div class="stat-change positive" id="priceChange">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Market Cap</div>
+                <div class="stat-value" id="marketCap" style="font-size: 24px;">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">P/E Ratio</div>
+                <div class="stat-value" id="peRatio">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">52 Week High</div>
+                <div class="stat-value" id="week52High" style="font-size: 24px;">-</div>
+            </div>
+        </div>
+
+        <!-- Info Panel -->
+        <div class="info-panel" id="infoPanel" style="display: none;">
+            <h3>📋 Company Information</h3>
+            <div class="info-row">
+                <span class="info-label">Company Name:</span>
+                <span class="info-value" id="companyName">-</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Sector:</span>
+                <span class="info-value" id="sector">-</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Industry:</span>
+                <span class="info-value" id="industry">-</span>
+            </div>
+            <div class="info-row" style="border-bottom: none;">
+                <span class="info-label">Recommendation:</span>
+                <span class="info-value" id="recommendation">-</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function analyzeStock() {
+            const ticker = document.getElementById('tickerInput').value.trim().toUpperCase();
+            if (!ticker) {
+                alert('Please enter a stock ticker');
+                return;
+            }
+
+            try {
+                // Send to Bankoo AI backend
+                const response = await fetch('/api/send_input', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: `Analyze stock ${ticker}` })
+                });
+
+                // Show panels with placeholder data
+                document.getElementById('statsGrid').style.display = 'grid';
+                document.getElementById('infoPanel').style.display = 'block';
+
+                // Placeholder data (real data would come from Bankoo AI)
+                document.getElementById('currentPrice').textContent = '$--.-';
+                document.getElementById('priceChange').textContent = 'Fetching...';
+                document.getElementById('marketCap').textContent = 'Loading...';
+                document.getElementById('companyName').textContent = ticker;
+
+                alert(`📊 Analyzing ${ticker}... Check main Bankoo chat for detailed results!`);
+
+            } catch (error) {
+                alert('❌ Connection error. Make sure Bankoo backend is running.');
+                console.error(error);
+            }
+        }
+
+        function quickAnalyze(ticker) {
+            document.getElementById('tickerInput').value = ticker;
+            analyzeStock();
+        }
+    </script>
+</body>
+
+</html>

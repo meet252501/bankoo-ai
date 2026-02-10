@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🕷️ Bankoo Web Scraper Studio</title>
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #0f1420;
+            --bg-tertiary: #151b2b;
+            --bg-card: #1a2036;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-pink: #ec4899;
+            --accent-green: #10b981;
+            --accent-cyan: #06b6d4;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: #1e293b;
+            --glow-blue: rgba(59, 130, 246, 0.3);
+            --glow-purple: rgba(139, 92, 246, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0a0e1a 0%, #1a1f3a 50%, #0f1420 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 32px 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #f472b6 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -2px;
+            margin-bottom: 12px;
+            line-height: 1.1;
+        }
+
+        .subtitle {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        /* Main Panel */
+        .main-panel {
+            background: rgba(26, 32, 54, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(59, 130, 246, 0.1);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4),
+                        0 0 100px rgba(59, 130, 246, 0.05);
+            animation: fadeInUp 0.7s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Tabs */
+        .tab-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .tab {
+            padding: 16px 20px;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1.5px solid transparent;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tab:hover {
+            border-color: var(--accent-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.2);
+        }
+
+        .tab:hover::before {
+            opacity: 0.1;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15));
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        #tab-magic-btn {
+            background: linear-gradient(135deg, #b026ff, #ff006e) !important;
+            color: white !important;
+            border: none !important;
+            box-shadow: 0 0 30px rgba(176, 38, 255, 0.4);
+        }
+
+        #tab-magic-btn:hover {
+            box-shadow: 0 0 40px rgba(176, 38, 255, 0.6);
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Inputs */
+        .input-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        select {
+            flex: 1;
+            min-width: 250px;
+            padding: 16px 20px;
+            background: var(--bg-secondary);
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            outline: none;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        textarea:focus,
+        select:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px var(--glow-blue);
+            background: var(--bg-tertiary);
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* Buttons */
+        button {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Inter', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+
+        button:hover::before {
+            transform: translateX(100%);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            color: white;
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(59, 130, 246, 0.5);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1.5px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card);
+            border-color: var(--accent-blue);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #f43f5e);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan));
+            color: white;
+        }
+
+        /* Options Grid */
+        .grid-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+            margin: 24px 0;
+        }
+
+        .card-option {
+            background: var(--bg-tertiary);
+            padding: 16px;
+            border-radius: 12px;
+            border: 1.5px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+
+        .card-option:hover {
+            border-color: var(--accent-blue);
+            background: var(--bg-card);
+            transform: translateY(-2px);
+        }
+
+        .card-option.active {
+            border-color: var(--accent-blue);
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--accent-blue);
+        }
+
+        .card-option input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--accent-blue);
+            cursor: pointer;
+        }
+
+        /* Stats Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin: 32px 0;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-card));
+            padding: 24px;
+            border-radius: 16px;
+            text-align: center;
+            border: 1.5px solid var(--border-color);
+            transition: all 0.3s;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+            border-color: var(--accent-blue);
+        }
+
+        .stat-num {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        /* Results */
+        .results-container {
+            padding-top: 24px;
+            border-top: 1.5px solid var(--border-color);
+            margin-top: 24px;
+        }
+
+        .result-group {
+            background: var(--bg-secondary);
+            border-left: 4px solid var(--accent-blue);
+            margin-bottom: 16px;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .result-group:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            transform: translateX(4px);
+        }
+
+        .result-title {
+            padding: 16px 20px;
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--accent-blue);
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1rem;
+        }
+
+        .result-content {
+            padding: 20px;
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        /* Spider Console */
+        .spider-console {
+            background: #000;
+            color: #00ff00;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 20px;
+            border-radius: 12px;
+            height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+            border: 1.5px solid #1a1a1a;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.1);
+        }
+
+        /* Network Graph */
+        #network-graph {
+            width: 100%;
+            height: 600px;
+            background: var(--bg-secondary);
+            border: 1.5px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Loader */
+        .loader-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 14, 26, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .spinner {
+            width: 70px;
+            height: 70px;
+            border: 6px solid rgba(59, 130, 246, 0.2);
+            border-top-color: var(--accent-blue);
+            border-bottom-color: var(--accent-purple);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+        }
+
+        /* Action Bar */
+        #actionBar {
+            display: none;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        /* Info Boxes */
+        .info-box {
+            background: rgba(59, 130, 246, 0.08);
+            padding: 24px;
+            border-radius: 16px;
+            border: 1.5px solid rgba(59, 130, 246, 0.3);
+            margin-bottom: 24px;
+        }
+
+        .info-box h3 {
+            color: #a78bfa;
+            margin-bottom: 12px;
+            font-size: 1.25rem;
+        }
+
+        .info-box p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Job Items */
+        .job-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-tertiary);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 1.5px solid var(--border-color);
+            transition: all 0.3s;
+        }
+
+        .job-item:hover {
+            border-color: var(--accent-blue);
+            transform: translateX(4px);
+        }
+
+        .job-info h4 {
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .job-meta {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .badge-active {
+            background: var(--accent-green);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 16px;
+            }
+
+            .main-panel {
+                padding: 24px;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .tab-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            input[type="text"],
+            input[type="number"],
+            select,
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🕷️ Web Scraper Studio</h1>
+            <p class="subtitle">Extract • Analyze • Export</p>
+        </div>
+
+        <div class="main-panel">
+            <!-- Tabs -->
+            <div class="tab-container">
+                <div class="tab active" onclick="setTab('single')">🎯 Single</div>
+                <div class="tab" onclick="setTab('batch')">📚 Batch</div>
+                <div class="tab" id="tab-magic-btn" onclick="setTab('magic')">✨ AI Magic</div>
+                <div class="tab" onclick="setTab('spider')">🕷️ Spider</div>
+                <div class="tab" onclick="setTab('graph')">🧠 Neural Graph</div>
+                <div class="tab" onclick="setTab('scheduler')">⏰ Watchdog</div>
+                <div class="tab" onclick="setTab('history')">📜 History</div>
+            </div>
+
+            <!-- TAB: SINGLE URL -->
+            <div id="tab-single" class="tab-content active">
+                <div class="input-group">
+                    <input type="text" id="urlInput" placeholder="https://example.com">
+                    <button class="btn-primary" onclick="runScraper()">Start Scraping</button>
+                    <button class="btn-secondary" onclick="toggleAdvanced()">⚙️</button>
+                </div>
+            </div>
+
+            <!-- TAB: BATCH -->
+            <div id="tab-batch" class="tab-content">
+                <p style="margin-bottom: 12px; color: var(--text-secondary);">Enter each URL on a new line:</p>
+                <textarea id="batchInput" placeholder="https://site1.com&#10;https://site2.com"></textarea>
+                <button class="btn-primary" style="width: 100%; margin-top: 16px;" onclick="runBatch()">Batch Process All</button>
+            </div>
+
+            <!-- TAB: AI MAGIC -->
+            <div id="tab-magic" class="tab-content">
+                <div class="info-box">
+                    <h3>✨ Universal AI Extractor</h3>
+                    <p>Just tell the AI what you want, and it will extract it from ANY website. No templates needed.</p>
+                </div>
+
+                <div class="input-group" style="flex-direction: column;">
+                    <input type="text" id="magicUrl" placeholder="Target URL (e.g. https://example.com/pricing)">
+                    <textarea id="magicQuery"
+                        placeholder="What to extract? (e.g. 'Get a list of all plan names, monthly prices, and features in a JSON array')"
+                        style="height: 100px;"></textarea>
+                    <button class="btn-primary" onclick="runMagic()"
+                        style="background: linear-gradient(90deg, #b026ff, #ff006e);">✨ Perform Magic Extraction</button>
+                </div>
+            </div>
+
+            <!-- TAB: SPIDER MODE -->
+            <div id="tab-spider" class="tab-content">
+                <div class="info-box">
+                    <strong>🕷️ Auto-Crawler Activated:</strong> This mode will automatically follow links to find more content.
+                </div>
+                <div class="input-group">
+                    <input type="text" id="spiderUrl" placeholder="Start URL: https://example.com/blog">
+                    <input type="number" id="spiderLimit" value="5" min="1" max="20" style="width: 120px;" title="Max Pages">
+                    <button class="btn-primary" onclick="runSpider()">Launch Spider</button>
+                </div>
+                <div id="spiderConsole" class="spider-console" style="display:none;"></div>
+            </div>
+
+            <!-- TAB: NEURAL GRAPH -->
+            <div id="tab-graph" class="tab-content">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 16px; align-items: center;">
+                    <p style="color: var(--text-secondary);">🧠 Visualize relationships between extracted entities.</p>
+                    <button class="btn-primary" onclick="generateGraph()">Generate Nexus</button>
+                </div>
+                <div id="network-graph"></div>
+                <div id="graph-details" style="margin-top: 20px; min-height: 50px;">
+                    <p style="text-align: center; color: var(--text-muted); font-style: italic; padding: 20px; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px dashed rgba(255,255,255,0.1);">
+                        Click on any circle above to see detailed information here.
+                    </p>
+                </div>
+                <p style="text-align: center; margin-top: 12px; font-size: 0.875rem; color: var(--text-muted);">Scroll to zoom • Drag to move nodes</p>
+            </div>
+
+            <!-- TAB: SCHEDULER -->
+            <div id="tab-scheduler" class="tab-content">
+                <div class="input-group" style="align-items: center;">
+                    <input type="text" id="schedUrl" placeholder="URL to watch">
+                    <select id="schedInterval" style="width: 180px;">
+                        <option value="60">Every 1 min</option>
+                        <option value="3600">Every 1 hour</option>
+                        <option value="21600">Every 6 hours</option>
+                        <option value="86400">Every 24 hours</option>
+                    </select>
+                    <button class="btn-success" onclick="addSchedule()">+ Watch</button>
+                </div>
+                <h3 style="margin-top: 24px; margin-bottom: 16px; color: var(--text-primary);">Active Watchdogs</h3>
+                <div id="schedulerList" style="margin-top: 16px;">
+                    <!-- Jobs -->
+                </div>
+                <button class="btn-secondary" onclick="loadSchedules()" style="margin-top: 12px;">↻ Refresh List</button>
+            </div>
+
+            <!-- TAB: HISTORY -->
+            <div id="tab-history" class="tab-content">
+                <div id="historyList"></div>
+            </div>
+
+            <!-- GLOBAL OPTIONS -->
+            <div id="advancedOptions" style="display: block;">
+                <div class="grid-options">
+                    <label class="card-option active" onclick="toggleOpt(this)">
+                        <input type="checkbox" id="opt-titles" checked> Titles
+                    </label>
+                    <label class="card-option active" onclick="toggleOpt(this)">
+                        <input type="checkbox" id="opt-prices" checked> Prices
+                    </label>
+                    <label class="card-option active" onclick="toggleOpt(this)">
+                        <input type="checkbox" id="opt-images" checked> Images
+                    </label>
+                    <label class="card-option active" onclick="toggleOpt(this)">
+                        <input type="checkbox" id="opt-links" checked> Links
+                    </label>
+                    <label class="card-option" onclick="toggleOpt(this)">
+                        <input type="checkbox" id="opt-tables"> Tables
+                    </label>
+                </div>
+            </div>
+
+            <!-- STATISTICS -->
+            <div class="stats-row" id="statsRow" style="display: none;">
+                <div class="stat-box">
+                    <div class="stat-num" id="s-titles">0</div>
+                    <div class="stat-label">Titles</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num" id="s-prices">0</div>
+                    <div class="stat-label">Prices</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num" id="s-images">0</div>
+                    <div class="stat-label">Images</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num" id="s-links">0</div>
+                    <div class="stat-label">Links</div>
+                </div>
+            </div>
+
+            <!-- ACTION BAR -->
+            <div id="actionBar">
+                <button class="btn-secondary" onclick="analyze('sentiment')">😊 Sentiment</button>
+                <button class="btn-secondary" onclick="analyze('summary')">📝 Summary</button>
+                <button class="btn-secondary" onclick="exportData('csv')">📊 CSV Export</button>
+                <button class="btn-secondary" onclick="exportData('json')">📥 JSON Export</button>
+                <button class="btn-success" onclick="deduplicate()">🔄 Clean Data</button>
+            </div>
+
+            <!-- RESULTS -->
+            <div id="resultsArea" class="results-container" style="display: none;">
+                <!-- Content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- LOADER -->
+    <div class="loader-overlay" id="loader">
+        <div class="spinner"></div>
+        <h3 id="loaderText" style="margin-top: 24px; font-weight: 400; color: var(--text-secondary);">Extracting Intelligence...</h3>
+    </div>
+
+    <script>
+        // === STATE ===
+        let currentData = {};
+        const API_BASE = '/api/scraper';
+
+        // === UI HELPERS ===
+        function toggleAdvanced() {
+            const adv = document.getElementById('advancedOptions');
+            adv.style.display = adv.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function toggleOpt(btn) {
+            const checkbox = btn.querySelector('input');
+            checkbox.checked = !checkbox.checked;
+            btn.classList.toggle('active', checkbox.checked);
+        }
+
+        async function copyByClass(btn) {
+            const content = btn.parentElement.nextElementSibling.innerText;
+            try {
+                await navigator.clipboard.writeText(content);
+                const original = btn.innerText;
+                btn.innerText = '✅';
+                setTimeout(() => btn.innerText = original, 1500);
+            } catch (err) {
+                console.error('Failed to copy!', err);
+            }
+        }
+
+        async function copyGraphValue(btn, text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                const original = btn.innerHTML;
+                btn.innerHTML = '✅ Copied!';
+                setTimeout(() => btn.innerHTML = original, 2000);
+            } catch (err) {
+                console.error('Failed to copy!', err);
+            }
+        }
+
+        async function analyze(type) {
+            if (!currentData.titles) return alert('No data to analyze. Scrape first!');
+
+            showLoader('AI Analyzing...');
+            try {
+                const res = await fetch(`${API_BASE}/ai/analyze`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ data: currentData, type: type })
+                });
+                const d = await res.json();
+
+                const area = document.getElementById('resultsArea');
+                renderGroup(area, `AI ${type.toUpperCase()}`, d.result || d.error);
+
+            } catch (e) { alert(e); }
+            hideLoader();
+        }
+
+        // === TABS ===
+        function setTab(id) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById('tab-' + id).classList.add('active');
+
+            if (id === 'scheduler') loadSchedules();
+            if (id === 'history') loadHistory();
+        }
+
+        function getOptions() {
+            return {
+                titles: document.getElementById('opt-titles').checked,
+                prices: document.getElementById('opt-prices').checked,
+                images: document.getElementById('opt-images').checked,
+                links: document.getElementById('opt-links').checked,
+                tables: document.getElementById('opt-tables').checked
+            };
+        }
+
+        function showLoader(text) {
+            document.getElementById('loaderText').innerText = text;
+            document.getElementById('loader').style.display = 'flex';
+        }
+
+        function hideLoader() {
+            document.getElementById('loader').style.display = 'none';
+        }
+
+        // === CORE SCRAPER ===
+        async function runScraper() {
+            const url = document.getElementById('urlInput').value;
+            if (!url) return alert('Enter URL');
+
+            showLoader('Deploying Scraper...');
+            try {
+                const res = await fetch(`${API_BASE}/extract`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url, options: getOptions() })
+                });
+                const data = await res.json();
+                if (!data.data) throw new Error(data.error || 'No data returned');
+
+                handleResults(data.data);
+                generateGraph(data.data);
+            } catch (e) { alert(e); }
+            hideLoader();
+        }
+
+        // === MAGIC ===
+        async function runMagic() {
+            const url = document.getElementById('magicUrl').value;
+            const query = document.getElementById('magicQuery').value;
+            if (!url || !query) return alert('Enter URL and Query');
+
+            showLoader('✨ AI is weaving its magic...');
+            try {
+                const res = await fetch(`${API_BASE}/ai/universal`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url, query })
+                });
+                const d = await res.json();
+
+                if (d.status === 'success') {
+                    let content = d.data;
+                    try {
+                        const jsonObj = JSON.parse(d.data);
+                        content = JSON.stringify(jsonObj, null, 2);
+                        currentData.magic = jsonObj;
+                    } catch (e) { }
+
+                    document.getElementById('statsRow').style.display = 'grid';
+                    document.getElementById('resultsArea').style.display = 'block';
+                    document.getElementById('resultsArea').innerHTML = '';
+
+                    renderGroup(document.getElementById('resultsArea'), '✨ AI Extraction Result', content);
+                } else {
+                    alert('Error: ' + d.error);
+                }
+            } catch (e) { alert(e); }
+            hideLoader();
+        }
+
+        // === SPIDER ===
+        async function runSpider() {
+            const url = document.getElementById('spiderUrl').value;
+            const limit = document.getElementById('spiderLimit').value;
+            if (!url) return alert('Enter Start URL');
+
+            const consoleDiv = document.getElementById('spiderConsole');
+            consoleDiv.style.display = 'block';
+            consoleDiv.innerHTML = '> Initializing Spider...\n';
+            showLoader('Spider Crawling...');
+
+            try {
+                const res = await fetch(`${API_BASE}/spider`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url, max_pages: parseInt(limit), options: getOptions() })
+                });
+                const result = await res.json();
+
+                consoleDiv.innerHTML += `> Crawl Complete. Visited ${result.pages_crawled} pages.\n`;
+
+                if (result.error) {
+                    consoleDiv.innerHTML += `> Error: ${result.error}\n`;
+                    alert('Backend Error: ' + result.error);
+                }
+
+                consoleDiv.innerHTML += `> Merging data...\n`;
+
+                let merged = { titles: [], prices: [], links: [], images: [] };
+                if (result.results && Array.isArray(result.results)) {
+                    result.results.forEach(page => {
+                        if (page.data) {
+                            if (page.data.titles) merged.titles.push(...page.data.titles);
+                            if (page.data.prices) merged.prices.push(...page.data.prices);
+                            if (page.data.links) merged.links.push(...page.data.links);
+                        }
+                    });
+                }
+
+                handleResults(merged);
+
+            } catch (e) { alert(e); }
+            hideLoader();
+        }
+
+        // === BATCH ===
+        async function runBatch() {
+            const urls = document.getElementById('batchInput').value.split('\n').filter(u => u);
+            if (!urls.length) return alert('No URLs');
+
+            showLoader(`Batch Processing ${urls.length} sites...`);
+            try {
+                const res = await fetch(`${API_BASE}/batch`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ urls, options: getOptions() })
+                });
+                const result = await res.json();
+
+                let merged = { titles: [], prices: [], links: [], images: [] };
+                if (result.results && Array.isArray(result.results)) {
+                    result.results.forEach(r => {
+                        if (r.data) {
+                            if (r.data.titles) merged.titles.push(...r.data.titles);
+                            if (r.data.prices) merged.prices.push(...r.data.prices);
+                        }
+                    });
+                }
+                handleResults(merged);
+            } catch (e) { alert(e); }
+            hideLoader();
+        }
+
+        // === SCHEDULER ===
+        async function addSchedule() {
+            const url = document.getElementById('schedUrl').value;
+            const interval = document.getElementById('schedInterval').value;
+            if (!url) return;
+
+            await fetch(`${API_BASE}/schedule/add`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url, interval: parseInt(interval) })
+            });
+            loadSchedules();
+            alert('Watchdog Active!');
+        }
+
+        async function loadSchedules() {
+            try {
+                const res = await fetch(`${API_BASE}/schedule/list`);
+                const jobs = await res.json();
+                const list = document.getElementById('schedulerList');
+                list.innerHTML = jobs.map(j => `
+                    <div class="job-item">
+                        <div class="job-info">
+                            <h4>${j.url}</h4>
+                            <div class="job-meta">
+                                <span class="badge-active">Active</span> • Runs every ${j.interval}s • Ran: ${j.runs} times
+                            </div>
+                        </div>
+                        <button class="btn-danger" style="padding: 8px 20px;" onclick="removeJob(${j.id})">Stop</button>
+                    </div>
+                `).join('') || '<p style="color:var(--text-muted); text-align:center;">No active watchdogs.</p>';
+            } catch (e) {
+                document.getElementById('schedulerList').innerHTML = '<p style="color:var(--text-muted); text-align:center;">Scheduler not available</p>';
+            }
+        }
+
+        async function removeJob(id) {
+            await fetch(`${API_BASE}/schedule/remove`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id })
+            });
+            loadSchedules();
+        }
+
+        // === NEURAL GRAPH ===
+        async function generateGraph(data = null) {
+            const dataToUse = data || currentData;
+            if (!dataToUse.titles && !dataToUse.prices) return alert('Scrape some data first!');
+
+            showLoader('Constructing Neural Nexus...');
+            try {
+                const res = await fetch(`${API_BASE}/graph`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ data: dataToUse })
+                });
+                const graph = await res.json();
+
+                const container = document.getElementById('network-graph');
+                const visData = {
+                    nodes: new vis.DataSet(graph.nodes || []),
+                    edges: new vis.DataSet(graph.edges || [])
+                };
+                const options = {
+                    nodes: {
+                        shape: 'dot',
+                        font: { color: '#ffffff', size: 14 }
+                    },
+                    edges: {
+                        color: { color: '#3b82f6', highlight: '#c084fc' },
+                        smooth: true
+                    },
+                    physics: {
+                        forceAtlas2Based: { 
+                            gravitationalConstant: -26, 
+                            centralGravity: 0.005, 
+                            springLength: 230, 
+                            springConstant: 0.18 
+                        },
+                        maxVelocity: 146,
+                        solver: 'forceAtlas2Based',
+                        timestep: 0.35,
+                        stabilization: { iterations: 150 }
+                    },
+                    groups: {
+                        url: { color: '#f472b6', size: 30 },
+                        title: { color: '#60a5fa', size: 15 },
+                        price: { color: '#10b981', size: 20 },
+                        link: { color: '#94a3b8', size: 10 },
+                        magic: { color: '#a78bfa', size: 18 }
+                    }
+                };
+                const network = new vis.Network(container, visData, options);
+
+                network.on("click", function (params) {
+                    if (params.nodes.length > 0) {
+                        const nodeId = params.nodes[0];
+                        const node = visData.nodes.get(nodeId);
+                        const infoText = node.title || node.label;
+                        const detailsDiv = document.getElementById('graph-details');
+
+                        detailsDiv.innerHTML = `
+                            <div style="padding: 24px; background: rgba(59, 130, 246, 0.08); border: 1.5px solid rgba(59, 130, 246, 0.4); border-radius: 12px;">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                                    <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-blue); font-weight: 800; background: rgba(59, 130, 246, 0.1); padding: 6px 12px; border-radius: 8px;">
+                                        ${node.group.toUpperCase()}
+                                    </span>
+                                    <button class="btn-secondary" style="padding: 6px 16px; font-size: 0.85rem;" onclick="copyGraphValue(this, \`${infoText.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)">
+                                        📋 Copy
+                                    </button>
+                                </div>
+                                <div style="color: var(--text-primary); font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; line-height: 1.6; white-space: pre-wrap; max-height: 300px; overflow-y: auto;">${infoText}</div>
+                            </div>
+                        `;
+                    }
+                });
+
+            } catch (e) { console.error(e); }
+            hideLoader();
+        }
+
+        // === UTILS ===
+        function handleResults(data) {
+            currentData = data;
+            document.getElementById('statsRow').style.display = 'grid';
+            document.getElementById('actionBar').style.display = 'flex';
+            document.getElementById('resultsArea').style.display = 'block';
+
+            document.getElementById('s-titles').innerText = data.titles?.length || 0;
+            document.getElementById('s-prices').innerText = data.prices?.length || 0;
+            document.getElementById('s-images').innerText = data.images?.length || 0;
+            document.getElementById('s-links').innerText = data.links?.length || 0;
+
+            const area = document.getElementById('resultsArea');
+            area.innerHTML = '';
+
+            if (data.titles) renderGroup(area, 'Titles', data.titles.map(t => t.text || t).join('\n'));
+            if (data.prices) renderGroup(area, 'Prices', data.prices.join('\n'));
+            if (data.links) renderGroup(area, 'Links', data.links.map(l => l.url).join('\n'));
+
+            saveHistory(data);
+        }
+
+        function renderGroup(container, title, content) {
+            const div = document.createElement('div');
+            div.className = 'result-group';
+            div.innerHTML = `
+                <div class="result-title">
+                    ${title} 
+                    <button style="background:none; border:none; color:white; cursor:pointer; font-size: 1.2rem;" onclick="copyByClass(this)">📋</button>
+                </div>
+                <div class="result-content">${content}</div>
+            `;
+            container.appendChild(div);
+        }
+
+        function saveHistory(data) {
+            let hist = JSON.parse(localStorage.getItem('scrapingHistory') || '[]');
+            hist.unshift({ date: new Date().toLocaleTimeString(), items: (data.titles?.length || 0) + ' items' });
+            if (hist.length > 20) hist.pop();
+            localStorage.setItem('scrapingHistory', JSON.stringify(hist));
+            loadHistory();
+        }
+
+        function loadHistory() {
+            const list = document.getElementById('historyList');
+            const hist = JSON.parse(localStorage.getItem('scrapingHistory') || '[]');
+            list.innerHTML = hist.map(h => `
+                <div style="padding: 16px; border-bottom: 1.5px solid var(--border-color); color: var(--text-secondary);">
+                    ${h.date} - ${h.items}
+                </div>
+            `).join('') || '<p style="color:var(--text-muted); text-align:center; padding: 24px;">No history yet</p>';
+        }
+
+        async function deduplicate() {
+            showLoader('Cleaning Data...');
+            const res = await fetch(`${API_BASE}/deduplicate`, { 
+                method: 'POST', 
+                body: JSON.stringify({ data: currentData }), 
+                headers: { 'Content-Type': 'application/json' } 
+            });
+            const d = await res.json();
+            handleResults(d.data);
+            hideLoader();
+        }
+
+        async function exportData(type) {
+            if (!currentData || Object.keys(currentData).length === 0) return alert('No data to export!');
+            exportNative(type);
+        }
+
+        async function exportNative(defaultFmt = null) {
+            if (!currentData || Object.keys(currentData).length === 0) return alert('No data to export!');
+
+            let fmt = defaultFmt;
+            if (!fmt) {
+                fmt = prompt("Export format (csv or json)?", "json");
+            }
+            if (!fmt || (fmt !== 'csv' && fmt !== 'json')) return;
+
+            showLoader('Opening Save Dialog...');
+
+            let content = "";
+
+            if (fmt === 'json') {
+                content = JSON.stringify(currentData, null, 2);
+            } else {
+                try {
+                    const res = await fetch(`${API_BASE}/export/csv`, {
+                        method: 'POST',
+                        body: JSON.stringify({ data: currentData }),
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const d = await res.json();
+                    if (d.csv) content = d.csv;
+                    else throw new Error(d.error);
+                } catch (e) {
+                    hideLoader();
+                    return alert("CSV Conversion failed: " + e);
+                }
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/export/native`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content, format: fmt })
+                });
+                const d = await res.json();
+
+                if (d.status === 'success') {
+                    alert(`✅ Saved successfully to:\n${d.path}`);
+                } else if (d.status === 'cancelled') {
+                    // ignore
+                } else {
+                    alert("Save Error: " + d.error);
+                }
+            } catch (e) { alert("Native Save Failed: " + e); }
+
+            hideLoader();
+        }
+    </script>
+</body>
+
+</html>

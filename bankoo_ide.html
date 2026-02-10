@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bankoo AETHER | Neural AI IDE</title>
+
+    <!-- Scripts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.50.0/min/vs/loader.min.js"></script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+Gujarati:wght@400;600;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        :root {
+            --primary-bg: #030712;
+            --glass-bg: rgba(15, 23, 42, 0.6);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+            --cyan: #00f2ff;
+            --purple: #bc13fe;
+            --text-primary: #f0f9ff;
+            --text-secondary: #cbd5e1;
+        }
+
+        body {
+            background: linear-gradient(135deg, #030712 0%, #0f1729 50%, #1a0a2e 100%);
+            background-attachment: fixed;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+        }
+
+        /* 🌌 God-Mode Background: Animated Mesh Grid */
+        .mesh-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(0deg, rgba(0, 242, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 242, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+            animation: gridShift 20s linear infinite;
+        }
+
+        @keyframes gridShift {
+            0% {
+                background-position: 0 0;
+            }
+
+            100% {
+                background-position: 50px 50px;
+            }
+        }
+
+        /* Ambient Orbs */
+        .radial-orb {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle at 30% 50%, rgba(188, 19, 254, 0.2), transparent 70%);
+            border-radius: 50%;
+            top: -200px;
+            right: -200px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .radial-orb-2 {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle at 70% 30%, rgba(0, 242, 255, 0.15), transparent 70%);
+            border-radius: 50%;
+            bottom: -150px;
+            left: -150px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .content-wrapper {
+            position: relative;
+            z-index: 10;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 🏙️ Layout Components */
+        .header {
+            backdrop-filter: blur(20px);
+            background: var(--glass-bg);
+            border-bottom: var(--glass-border);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+        }
+
+        .panel-toggle-group {
+            display: flex;
+            gap: 10px;
+            margin-right: 20px;
+        }
+
+        .toggle-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .toggle-btn.active {
+            background: rgba(0, 242, 255, 0.15);
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+
+        .toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        /* 📂 Sidebar (Explorer) - Collapsible */
+        .sidebar {
+            width: 260px;
+            backdrop-filter: blur(20px);
+            background: var(--glass-bg);
+            border-right: var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s;
+            z-index: 50;
+        }
+
+        .sidebar.hidden {
+            width: 0;
+            transform: translateX(-100%);
+            border-right: none;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: 14px 16px;
+            border-bottom: var(--glass-border);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--cyan);
+            opacity: 0.8;
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+        }
+
+        .file-item {
+            padding: 8px 12px;
+            margin-bottom: 4px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            transition: all 0.2s ease;
+            color: var(--text-secondary);
+        }
+
+        .file-item:hover {
+            background: rgba(0, 242, 255, 0.1);
+            color: var(--cyan);
+        }
+
+        .file-item.active {
+            background: rgba(188, 19, 254, 0.15);
+            border: 1px solid var(--purple);
+            color: #fff;
+        }
+
+        /* 💻 Code Center */
+        .editor-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: #010409 !important;
+            position: relative;
+            z-index: 50 !important;
+            /* Force to top */
+            pointer-events: auto !important;
+        }
+
+        #monaco-editor {
+            flex: 1;
+            overflow: hidden !important;
+            outline: none;
+            height: 100%;
+            width: 100%;
+        }
+
+        /* Ensure Monaco sub-elements are interactive */
+        #monaco-editor * {
+            pointer-events: auto !important;
+        }
+
+        /* 📑 Tab Bar */
+        .tab-bar {
+            height: 35px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: var(--glass-border);
+            display: flex;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .tab-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab {
+            padding: 0 16px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .tab:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab.active {
+            background: #010409;
+            color: var(--cyan);
+            font-weight: 600;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--cyan);
+            box-shadow: 0 0 10px var(--cyan);
+        }
+
+        .tab-close {
+            opacity: 0.3;
+            font-size: 14px;
+        }
+
+        .tab-close:hover {
+            opacity: 1;
+            color: var(--purple);
+        }
+
+        #monaco-editor {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* 📟 Terminal - Collapsible */
+        .terminal {
+            height: 180px;
+            backdrop-filter: blur(40px);
+            background: rgba(0, 0, 0, 0.9);
+            border-top: var(--glass-border);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            overflow-y: auto;
+            padding: 12px 16px;
+            transition: height 0.3s ease, opacity 0.3s;
+        }
+
+        .terminal.hidden {
+            height: 0;
+            padding: 0;
+            opacity: 0;
+            border-top: none;
+            overflow: hidden;
+        }
+
+        /* 🧬 Neural Chat Panel */
+        .right-sidebar {
+            width: 360px;
+            backdrop-filter: blur(20px);
+            background: var(--glass-bg);
+            border-left: var(--glass-border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .neural-orb-section {
+            padding: 20px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            border-bottom: var(--glass-border);
+        }
+
+        /* 🌌 The AETHER Singularity - High-Fidelity Visualizer */
+        .singularity-container {
+            position: relative;
+            width: 160px;
+            height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px 0;
+            filter: drop-shadow(0 0 20px rgba(0, 242, 255, 0.3));
+        }
+
+        .singularity-core {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background: radial-gradient(circle, #fff 0%, var(--cyan) 30%, var(--purple) 70%, transparent 100%);
+            border-radius: 50%;
+            filter: url(#plasma-filter);
+            animation: singularity-pulse 3s ease-in-out infinite alternate;
+            z-index: 10;
+        }
+
+        .singularity-aura {
+            position: absolute;
+            width: 110px;
+            height: 110px;
+            background: conic-gradient(from 0deg, var(--cyan), var(--purple), var(--cyan));
+            border-radius: 50%;
+            opacity: 0.2;
+            filter: blur(15px);
+            animation: singularity-rotate 10s linear infinite;
+        }
+
+        .data-shard {
+            position: absolute;
+            width: 4px;
+            height: 12px;
+            background: var(--cyan);
+            clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+            opacity: 0.6;
+            animation: shard-orbit var(--speed, 4s) linear infinite;
+        }
+
+        @keyframes singularity-pulse {
+            from {
+                transform: scale(0.9);
+                filter: url(#plasma-filter) brightness(1);
+            }
+
+            to {
+                transform: scale(1.1);
+                filter: url(#plasma-filter) brightness(1.4);
+            }
+        }
+
+        @keyframes singularity-rotate {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes shard-orbit {
+            from {
+                transform: rotate(var(--angle)) translateY(-70px) rotate(0deg);
+            }
+
+            to {
+                transform: rotate(var(--angle)) translateY(-70px) rotate(360deg);
+            }
+        }
+
+        /* 🧠 State Reactivity */
+        .singularity-core.thinking {
+            background: radial-gradient(circle, #fff 0%, #ff00de 30%, #7000ff 70%, transparent 100%);
+            animation: singularity-pulse 0.4s ease-in-out infinite alternate;
+            filter: url(#plasma-filter-active);
+        }
+
+        .singularity-core.listening {
+            background: radial-gradient(circle, #fff 0%, #00ff88 30%, #00c3ff 70%, transparent 100%);
+            animation: singularity-pulse 0.8s ease-in-out infinite alternate;
+        }
+
+        /* 💬 Chat bubbles */
+        .neural-info {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* --- BOARDROOM LOGS --- */
+        .boardroom-log {
+            padding: 12px;
+            background: rgba(0, 242, 255, 0.05);
+            border: 1px solid rgba(0, 242, 255, 0.1);
+            border-radius: 8px;
+            font-size: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            line-height: 1.5;
+            animation: slideUp 0.3s ease;
+        }
+
+        .boardroom-log .role {
+            font-weight: 800;
+            color: var(--cyan);
+            margin-bottom: 4px;
+        }
+
+        .boardroom-log.risk {
+            border-color: rgba(255, 68, 68, 0.3);
+            background: rgba(255, 68, 68, 0.05);
+        }
+
+        .boardroom-log.risk .role {
+            color: #ff4444;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .msg {
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13.5px;
+            line-height: 1.6;
+            max-width: 90%;
+        }
+
+        .msg.ai {
+            background: rgba(188, 19, 254, 0.1);
+            border: 1px solid rgba(188, 19, 254, 0.2);
+            align-self: flex-start;
+        }
+
+        .msg.user {
+            background: linear-gradient(135deg, rgba(0, 242, 255, 0.2), rgba(188, 19, 254, 0.2));
+            border: 1px solid rgba(0, 242, 255, 0.4);
+            align-self: flex-end;
+        }
+
+        .gujarati {
+            font-family: 'Noto Sans Gujarati', sans-serif;
+            color: var(--cyan);
+            font-weight: 600;
+        }
+
+        /* 🎮 Inputs */
+        .chat-input-area {
+            padding: 16px;
+            border-top: var(--glass-border);
+        }
+
+        .chat-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: var(--glass-border);
+            border-radius: 10px;
+            padding: 12px 16px;
+            color: #fff;
+            outline: none;
+            transition: border 0.3s;
+            font-size: 13px;
+        }
+
+        .chat-input:focus {
+            border-color: var(--cyan);
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
+        }
+
+        .btn-run {
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            color: #000;
+            font-weight: 700;
+            padding: 8px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-run:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px var(--cyan);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="mesh-grid"></div>
+    <div class="radial-orb"></div>
+    <div class="radial-orb-2"></div>
+
+    <div class="content-wrapper">
+        <!-- SVG Filters for Singularity -->
+        <svg style="position: absolute; width: 0; height: 0;">
+            <filter id="plasma-filter">
+                <feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="3" seed="1" result="noise" />
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="15" />
+            </filter>
+            <filter id="plasma-filter-active">
+                <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="5" seed="5" result="noise">
+                    <animate attributeName="seed" from="1" to="100" dur="2s" repeatCount="indefinite" />
+                </feTurbulence>
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="30" />
+            </filter>
+        </svg>
+        <header class="header">
+            <div class="flex items-center">
+                <div class="header-title mr-8"
+                    style="font-size: 16px; font-weight: 800; letter-spacing: 0.05em; background: linear-gradient(90deg, var(--cyan), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                    ✨ BANKOO AETHER</div>
+                <div class="panel-toggle-group">
+                    <button class="toggle-btn active" id="btn-explorer" onclick="togglePanel('explorer')">📂
+                        EXPLORER</button>
+                    <button class="toggle-btn active" id="btn-terminal" onclick="togglePanel('terminal')">📟
+                        TERMINAL</button>
+                    <button class="toggle-btn active" id="btn-vision" onclick="togglePanel('vision')">👁️
+                        VISION</button>
+                    <button class="toggle-btn active" id="btn-neural" onclick="togglePanel('neural')">🧬 NEURAL</button>
+                </div>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="text-[10px] font-mono opacity-60">SYSTEM STATUS: <span
+                        class="text-green-400">GOD-MODE_ONLINE</span></div>
+                <button class="btn-run" style="background: linear-gradient(135deg, #10b981, #059669); color: white;"
+                    onclick="runSystem()">▶ RUN SYSTEM</button>
+                <button class="btn-run" style="background: linear-gradient(135deg, #00d4ff, #0072ff); color: white;"
+                    onclick="refactorCode()">🏛️ GRANDMASTER REFACTOR</button>
+                <button class="btn-run" style="background: linear-gradient(135deg, #bc13fe, #7000ff); color: white;"
+                    onclick="syncAirLLM()">🛰️ SYNC LOCAL AI</button>
+                <button class="btn-run" onclick="showRoadmap()">🗺️ ROADMAP</button>
+                <button class="btn-run" onclick="saveFile()">💾 SAVE PROJECT</button>
+            </div>
+        </header>
+
+        <div class="main-container">
+            <aside class="sidebar">
+                <div class="sidebar-header">Explorer</div>
+                <div class="sidebar-content" id="explorer"></div>
+
+                <div id="vision-sidebar" class="hidden"
+                    style="flex: 1; border-top: var(--glass-border); display: flex; flex-direction: column;">
+                    <div class="sidebar-header" style="color: var(--purple);">Neural Architecture</div>
+                    <canvas id="vision-canvas" style="flex: 1; width: 100%;"></canvas>
+                    <div class="p-2 text-[10px] text-center opacity-40">LENS_VIEW: ACTIVE</div>
+                </div>
+
+                <div class="p-4 border-t border-glass-border">
+                    <button class="w-full py-2 bg-white/5 border border-white/10 rounded-md text-xs hover:bg-white/10"
+                        onclick="createNewFile()">+ New File</button>
+                </div>
+            </aside>
+
+            <div class="editor-container">
+                <div class="tab-bar" id="tab-bar">
+                    <!-- Tabs injected via JS -->
+                </div>
+                <div id="monaco-editor"></div>
+                <div class="terminal" id="terminal">
+                    <div class="text-cyan-500 font-bold mb-1">◆ NEURAL_STREAM_LOG</div>
+                    <div id="terminal-content">
+                        <span class="opacity-40">[SYSTEM]</span> Authentication successful. <br>
+                        <span class="opacity-40">[SYSTEM]</span> Injected 13/13 Language Logic protocols. <br>
+                        <span class="text-green-400">> Ready for Grandmaster command.</span>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="right-sidebar" id="panel-neural">
+                <div class="neural-orb-section">
+                    <div class="singularity-container" id="singularity">
+                        <div class="singularity-aura"></div>
+                        <div class="singularity-core" id="singularity-core"></div>
+                        <!-- Shards injected via JS -->
+                    </div>
+                    <div class="text-[10px] uppercase tracking-[0.2em] font-bold text-cyan-400">AETHER Protocol: Linked
+                    </div>
+                </div>
+
+                <div class="neural-info">
+                    <div class="text-[10px] opacity-40 uppercase tracking-widest font-bold">Neural Stream</div>
+                    <div id="chat-history"
+                        style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+                        <div class="msg ai">
+                            નમસ્તે Meet! હું Bankoo AI છું. <br>
+                            <span class="text-[11px] opacity-60">Neural Mini-Orb Active. Ready for Grandmaster
+                                command.</span>
+                        </div>
+                    </div>
+
+                    <!-- NEW: BOARDROOM LOGS SECTION -->
+                    <div id="boardroom-section" class="hidden">
+                        <div class="text-[10px] opacity-40 uppercase tracking-widest font-bold mb-2 text-purple-400">🏛️
+                            Council Debate</div>
+                        <div id="boardroom-logs" style="display: flex; flex-direction: column; gap: 6px;">
+                            <!-- Boardroom logs injected here -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-input-area">
+                    <input type="text" id="user-input" class="chat-input" placeholder="Enter Grandmaster command..."
+                        onkeydown="if(event.key === 'Enter') sendMessage()">
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- 🧬 ZENITH AI CONTEXT LENS -->
+    <div id="zenith-lens"
+        style="position: fixed; display: none; z-index: 1000; background: rgba(3, 7, 18, 0.9); backdrop-filter: blur(20px); border: 1px solid var(--cyan); border-radius: 8px; padding: 6px; box-shadow: 0 0 25px rgba(0, 242, 255, 0.4); min-width: 180px;">
+        <div
+            style="font-size: 9px; font-weight: 800; color: var(--cyan); margin-bottom: 6px; padding: 0 8px; letter-spacing: 0.1em;">
+            ZENITH_LENS_v4</div>
+        <button class="lens-item" onclick="lensAction('refactor')">🔨 Grandmaster Refactor</button>
+        <button class="lens-item" onclick="lensAction('explain')">🤔 Explain Logic</button>
+        <button class="lens-item" onclick="lensAction('test')">🧪 Generate Unit Test</button>
+        <button class="lens-item" onclick="lensAction('gujarati')">🏛️ Translate to Gujarati</button>
+    </div>
+
+    <style>
+        .lens-item {
+            width: 100%;
+            text-align: left;
+            padding: 8px 12px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+
+        .lens-item:hover {
+            background: rgba(0, 242, 255, 0.1);
+            color: var(--cyan);
+        }
+    </style>
+
+    <!-- 🗺️ Roadmap Modal Overlay -->
+    <div class="modal-overlay" id="roadmap-modal" onclick="closeRoadmap()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2 class="text-2xl font-bold text-cyan-400 mb-4">Evolving AETHER: Feature Roadmap</h2>
+            <p class="text-sm text-slate-300 opacity-80">Comparing Bankoo Sovereign to Legacy Advanced IDEs (Cursor/VS
+                Code).</p>
+
+            <div class="roadmap-list">
+                <div class="roadmap-item"><span>🚀</span> IntelliSense Hub - Project-Wide Autocomplete</div>
+                <div class="roadmap-item"><span>🔍</span> Global Find - Search logic across all local files</div>
+                <div class="roadmap-item"><span>🛠️</span> Integrated Debugger - Real-time breakpoint analysis</div>
+                <div class="roadmap-item"><span>🔗</span> Git Neural Bridge - Autonomous commit & push logic</div>
+                <div class="roadmap-item"><span>📱</span> Device Preview - Built-in mobile/web rendering</div>
+            </div>
+
+            <button
+                class="w-full py-3 bg-cyan-500/20 border border-cyan-500/40 rounded-lg text-cyan-400 font-bold hover:bg-cyan-500/30 transition"
+                onclick="closeRoadmap()">Return to AETHER_COMMAND</button>
+        </div>
+    </div>
+
+    <script>
+        require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.50.0/min/vs' } });
+
+        let editor;
+        let currentFile = "main.py";
+        let openFiles = {}; // { filename: { content: string, model: monacoModel } }
+
+        require(['vs/editor/editor.main'], function () {
+            monaco.editor.defineTheme('god-mode-theme', {
+                base: 'vs-dark',
+                inherit: true,
+                rules: [
+                    { token: 'comment', foreground: '646695', fontStyle: 'italic' },
+                    { token: 'keyword', foreground: 'bc13fe', fontStyle: 'bold' },
+                    { token: 'string', foreground: '10b981' },
+                    { token: 'number', foreground: '00f2ff' }
+                ],
+                colors: {
+                    'editor.background': '#010409',
+                    'editor.selectionBackground': '#00f2ff25',
+                    'editor.lineHighlightBackground': '#ffffff05',
+                    'editorCursor.foreground': '#00f2ff'
+                }
+            });
+
+            editor = monaco.editor.create(document.getElementById('monaco-editor'), {
+                value: "# Bankoo AI | Grandmaster Script\ndef optimized_logic():\n\tpass",
+                language: 'python',
+                theme: 'god-mode-theme',
+                automaticLayout: true,
+                fontSize: 14,
+                fontFamily: 'JetBrains Mono',
+                minimap: { enabled: true },
+                scrollbar: {
+                    vertical: 'visible',
+                    horizontal: 'visible'
+                },
+                readOnly: false,
+                inlineSuggest: { enabled: true } // Enable Ghost Text
+            });
+
+            // --- GHOST PILOT INTEGRATION ---
+            monaco.languages.registerInlineCompletionsProvider('python', {
+                provideInlineCompletions: async function (model, position, context) {
+                    const textUntilPosition = model.getValueInRange({
+                        startLineNumber: 1,
+                        startColumn: 1,
+                        endLineNumber: position.lineNumber,
+                        endColumn: position.column
+                    });
+
+                    // Debounce logic (simple check for now)
+                    if (textUntilPosition.length < 10) return { items: [] };
+
+                    try {
+                        const response = await fetch('/api/ide/ghost_complete', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                context: textUntilPosition.slice(-500), // Last 500 chars context
+                                language: 'python'
+                            })
+                        }).then(r => r.json());
+
+                        if (response.completion) {
+                            return {
+                                items: [{
+                                    insertText: response.completion,
+                                    range: {
+                                        startLineNumber: position.lineNumber,
+                                        startColumn: position.column,
+                                        endLineNumber: position.lineNumber,
+                                        endColumn: position.column
+                                    }
+                                }]
+                            };
+                        }
+                    } catch (e) { console.error("GhostPilot Error:", e); }
+
+                    return { items: [] };
+                },
+                freeInlineCompletions: function (completions) { }
+            });
+
+            loadExplorer();
+            initSingularity();
+
+            // Create initial tab
+            createTab("main.py");
+
+            // Editor sync for Vision
+            editor.onDidChangeModelContent(() => {
+                clearTimeout(visionBounce);
+                visionBounce = setTimeout(drawVisionGraph, 500);
+            });
+
+            // Ensure editor is interactive
+            document.getElementById('monaco-editor').addEventListener('click', () => {
+                editor.focus();
+            });
+
+            // --- ZENITH LENS INTEGRATION ---
+            editor.onContextMenu((e) => {
+                e.event.preventDefault();
+                const lens = document.getElementById('zenith-lens');
+                lens.style.display = 'block';
+                lens.style.top = e.event.posy + 'px';
+                lens.style.left = e.event.posx + 'px';
+            });
+
+            window.addEventListener('click', (e) => {
+                if (!e.target.closest('#zenith-lens')) {
+                    document.getElementById('zenith-lens').style.display = 'none';
+                }
+            });
+        });
+
+        async function lensAction(action) {
+            const selection = editor.getModel().getValueInRange(editor.getSelection());
+            const lens = document.getElementById('zenith-lens');
+            lens.style.display = 'none';
+
+            let prompt = "";
+            if (action === 'refactor') prompt = `Grandmaster Refactor: Please optimize and clean this code snippet:\n\n${selection}`;
+            else if (action === 'explain') prompt = `Explain Logic: What does this code do? (Explain clearly)\n\n${selection}`;
+            else if (action === 'test') prompt = `Generate Unit Test: Create a robust unit test for this code:\n\n${selection}`;
+            else if (action === 'gujarati') prompt = `Translate to Gujarati: Please explain this code in Gujarati script:\n\n${selection}`;
+
+            if (selection) {
+                document.getElementById('user-input').value = prompt;
+                sendMessage();
+            } else {
+                alert("Please select some code first!");
+            }
+        }
+
+        function createTab(filename) {
+            if (openFiles[filename]) {
+                switchTab(filename);
+                return;
+            }
+
+            const ext = filename.split('.').pop();
+            let lang = 'python';
+            const langMap = { 'py': 'python', 'js': 'javascript', 'html': 'html', 'css': 'css', 'json': 'json', 'md': 'markdown' };
+            lang = langMap[ext] || 'python';
+
+            const model = monaco.editor.createModel("", lang);
+            openFiles[filename] = {
+                model: model,
+                viewState: null
+            };
+
+            updateTabBar();
+            switchTab(filename);
+        }
+
+        function updateTabBar() {
+            const bar = document.getElementById('tab-bar');
+            bar.innerHTML = "";
+            Object.keys(openFiles).forEach(file => {
+                const tab = document.createElement('div');
+                tab.className = `tab ${file === currentFile ? 'active' : ''}`;
+                tab.innerHTML = `
+                    <span>${file}</span>
+                    <span class="tab-close" onclick="closeTab(event, '${file}')">×</span>
+                `;
+                tab.onclick = () => switchTab(file);
+                bar.appendChild(tab);
+            });
+        }
+
+        function switchTab(filename) {
+            // Save state of current file
+            if (currentFile && openFiles[currentFile]) {
+                openFiles[currentFile].viewState = editor.saveViewState();
+            }
+
+            currentFile = filename;
+            editor.setModel(openFiles[filename].model);
+
+            // Restore state if exists
+            if (openFiles[filename].viewState) {
+                editor.restoreViewState(openFiles[filename].viewState);
+            }
+
+            updateTabBar();
+            loadExplorer();
+            logTerminal(`Switched focus to: ${filename}`);
+        }
+
+        function closeTab(e, filename) {
+            e.stopPropagation();
+            const keys = Object.keys(openFiles);
+            if (keys.length <= 1) return;
+
+            openFiles[filename].model.dispose();
+            delete openFiles[filename];
+
+            if (currentFile === filename) {
+                switchTab(Object.keys(openFiles)[0]);
+            } else {
+                updateTabBar();
+            }
+        }
+
+        function initSingularity() {
+            const container = document.getElementById('singularity');
+            for (let i = 0; i < 15; i++) {
+                const shard = document.createElement('div');
+                shard.className = 'data-shard';
+                shard.style.setProperty('--angle', `${i * (360 / 15)}deg`);
+                shard.style.setProperty('--speed', `${2 + Math.random() * 4}s`);
+                shard.style.setProperty('animation-delay', `${Math.random() * 5}s`);
+                container.appendChild(shard);
+            }
+        }
+
+        function setNeuralState(state) {
+            const core = document.getElementById('singularity-core');
+            core.classList.remove('thinking', 'listening');
+            if (state !== 'idle') core.classList.add(state);
+            logTerminal(`AETHER Shift: ${state.toUpperCase()}`);
+        }
+
+        function togglePanel(panelId) {
+            const btn = document.getElementById(`btn-${panelId}`);
+            let target;
+
+            if (panelId === 'explorer') {
+                target = document.querySelector('.sidebar');
+                document.getElementById('explorer').classList.remove('hidden');
+                document.getElementById('vision-sidebar').classList.add('hidden');
+            }
+            else if (panelId === 'vision') {
+                target = document.querySelector('.sidebar');
+                document.getElementById('explorer').classList.add('hidden');
+                document.getElementById('vision-sidebar').classList.remove('hidden');
+                drawVisionGraph(); // Re-draw when shown
+            }
+            else if (panelId === 'terminal') target = document.getElementById('terminal');
+            else if (panelId === 'neural') target = document.getElementById('panel-neural');
+
+            if (panelId !== 'explorer' && panelId !== 'vision') {
+                target.classList.toggle('hidden');
+            } else {
+                target.classList.remove('hidden');
+            }
+
+            // Sync button states
+            if (panelId === 'explorer' || panelId === 'vision') {
+                document.getElementById('btn-explorer').classList.remove('active');
+                document.getElementById('btn-vision').classList.remove('active');
+                btn.classList.add('active');
+            } else {
+                btn.classList.toggle('active');
+            }
+
+            // Resize editor after transition
+            setTimeout(() => {
+                if (editor) editor.layout();
+            }, 350);
+        }
+
+        function createNewFile() {
+            const name = prompt("Enter new filename (e.g. app.js):");
+            if (name) {
+                createTab(name);
+                logTerminal(`Created new local buffer: ${name}`);
+            }
+        }
+
+        function showRoadmap() {
+            document.getElementById('roadmap-modal').style.display = 'flex';
+            logTerminal("Evolving AETHER: Displaying Grandmaster Roadmap...");
+        }
+
+        function closeRoadmap() {
+            document.getElementById('roadmap-modal').style.display = 'none';
+        }
+
+        async function syncAirLLM() {
+            logTerminal("Initiating AirLLM Layer-wise Sync...");
+            setNeuralState('thinking');
+            try {
+                const res = await fetch('/api/ide/sync_ai', { method: 'POST' }).then(r => r.json());
+                if (res.status === 'success') {
+                    logTerminal("✅ AirLLM Initialized. Local Grandmaster ACTIVE.");
+                    alert("AirLLM Ready! You can now run massive models locally.");
+                } else {
+                    logTerminal("❌ sync failed: " + res.message);
+                }
+            } catch (e) {
+                logTerminal("❌ Bridge Error: " + e.message);
+            }
+            setNeuralState('idle');
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('user-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            addMessage(text, 'user');
+            input.value = '';
+
+            // Interaction trigger for Spline if needed (Spline runtime interaction)
+            // For now, it stays idle or reacts via Spline's internal events.
+
+            logTerminal(`Inference started: "${text.substring(0, 30)}..."`);
+            setNeuralState('thinking');
+
+            try {
+                const response = await fetch('/api/ide/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text })
+                }).then(r => r.json());
+
+                processResponse(response);
+                setNeuralState('idle');
+            } catch (e) {
+                console.error("IDE Bridge Error:", e);
+                addMessage("❌ Connection Error: Neural Bridge is down or server not running.", 'ai');
+                setNeuralState('idle');
+            }
+        }
+
+        async function refactorCode() {
+            const selection = editor.getSelection();
+            const selectedText = editor.getModel().getValueInRange(selection);
+
+            let query = "";
+            if (selectedText) {
+                query = `REFACTOR this code snippet and explain the changes:\n\n${selectedText}`;
+            } else {
+                query = `Review and refactor the entire file: ${currentFile}`;
+            }
+
+            addMessage(`🏛️ Initiating Council Debate for refactor...`, 'user');
+            logTerminal("🏛️ Council Boardroom forming...");
+            setNeuralState('thinking');
+            document.getElementById('boardroom-section').classList.remove('hidden');
+            document.getElementById('boardroom-logs').innerHTML = "";
+
+            // Simulate the debate phases for UI visual feedback
+            addBoardroomLog("CTO", "Analyzing technical architecture and efficiency bottlenecks...");
+
+            try {
+                const response = await fetch('/api/ide/debate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: query })
+                }).then(r => r.json());
+
+                if (response.status === 'success') {
+                    addBoardroomLog("CRO", "Risk Audit complete. Identifying potential vulnerabilities...");
+                    setTimeout(() => {
+                        addBoardroomLog("VP_ENG", "Optimization phase active. Rebuilding with Grandmaster logic.");
+                        processResponse({ answer: response.result });
+                    }, 1000);
+                }
+                setNeuralState('idle');
+            } catch (e) {
+                addMessage("❌ Council connection lost.", 'ai');
+                setNeuralState('idle');
+            }
+        }
+
+        function addBoardroomLog(role, msg) {
+            const container = document.getElementById('boardroom-logs');
+            const div = document.createElement('div');
+            div.className = `boardroom-log ${role === 'CRO' ? 'risk' : ''}`;
+            div.innerHTML = `<div class="role">[ ${role} ]</div><div>${msg}</div>`;
+            container.appendChild(div);
+            // Limit logs
+            if (container.children.length > 3) container.removeChild(container.firstChild);
+        }
+
+        function addMessage(text, role) {
+            const container = document.getElementById('chat-history');
+            const div = document.createElement('div');
+            div.className = `msg ${role}`;
+
+            const gujReg = /[\u0A80-\u0AFF]+/g;
+            if (role === 'ai') {
+                text = text.replace(gujReg, match => `<span class="gujarati">${match}</span>`);
+            }
+
+            div.innerHTML = text.replace(/\n/g, '<br>');
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function processResponse(data) {
+            if (data.answer) addMessage(data.answer, 'ai');
+
+            // 🎯 Agentic File Management
+            if (data.target_file && data.code) {
+                logTerminal(`🧬 Agentic Action: Syncing focus to ${data.target_file}`);
+                createTab(data.target_file);
+                openFiles[data.target_file].model.setValue(data.code);
+                logTerminal(`Logic Injected into ${data.target_file}. protocol: Grandmaster-Zero-Day`);
+            } else if (data.code && editor) {
+                editor.setValue(data.code);
+                logTerminal(`Logic Injected into active buffer.`);
+            }
+
+            // 🛠️ Agentic Actions
+            if (data.action === 'RUN_SYSTEM') {
+                logTerminal(`🧬 AI requested system execution...`);
+                setTimeout(runSystem, 1000);
+            }
+        }
+
+        async function saveFile() {
+            const code = editor.getValue();
+            const filename = prompt("Enter filename to save:", currentFile);
+            if (!filename) return;
+
+            logTerminal(`Saving file: ${filename}...`);
+            try {
+                const res = await fetch('/api/ide/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filename: filename, code: code })
+                }).then(r => r.json());
+
+                if (res.status === 'success') {
+                    logTerminal(`File persisted: ${res.path}`);
+                    loadExplorer();
+                } else {
+                    logTerminal(`Persistance Error: ${res.message}`);
+                }
+            } catch (e) {
+                logTerminal(`System Bridge Error: ${e.message}`);
+            }
+        }
+
+        async function loadExplorer() {
+            try {
+                const res = await fetch('/api/ide/files').then(r => r.json());
+                const container = document.getElementById('explorer');
+                container.innerHTML = '';
+
+                res.files.forEach(file => {
+                    const div = document.createElement('div');
+                    div.className = `file-item ${file === currentFile ? 'active' : ''}`;
+
+                    let icon = '📄';
+                    if (file.endsWith('.py')) icon = '🐍';
+                    else if (file.endsWith('.rs')) icon = '🦀';
+                    else if (file.endsWith('.js')) icon = '📜';
+                    else if (file.endsWith('.json')) icon = '⚙️';
+                    else if (file.endsWith('.bat')) icon = '⚡';
+
+                    div.innerHTML = `<span>${icon}</span> &nbsp; ${file}`;
+                    div.onclick = () => loadFile(file);
+                    container.appendChild(div);
+                });
+            } catch (e) {
+                logTerminal("Failed to load explorer.");
+            }
+        }
+
+        async function loadFile(filename) {
+            if (openFiles[filename]) {
+                switchTab(filename);
+                return;
+            }
+
+            logTerminal(`Loading file: ${filename}...`);
+            try {
+                const res = await fetch('/api/ide/read_file', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filename: filename })
+                }).then(r => r.json());
+
+                if (res.content !== undefined) {
+                    createTab(filename);
+                    openFiles[filename].model.setValue(res.content);
+                    logTerminal(`File loaded: ${filename}`);
+                }
+            } catch (e) {
+                logTerminal(`Error loading file: ${e.message}`);
+            }
+        }
+
+        // --- AETHER VISION: NEURAL ARCHITECTURE GRAPH ---
+        let visionBounce;
+        function drawVisionGraph() {
+            const canvas = document.getElementById('vision-canvas');
+            if (canvas.parentElement.classList.contains('hidden')) return;
+
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width = canvas.offsetWidth;
+            const h = canvas.height = canvas.offsetHeight;
+
+            ctx.clearRect(0, 0, w, h);
+
+            const code = editor.getValue();
+            const lines = code.split('\n');
+            const nodes = [{ label: currentFile, type: 'core', x: w / 2, y: 40 }];
+
+            // Basic parsing for py/js
+            lines.forEach((line, i) => {
+                let match = line.match(/^\s*(def|function|class)\s+([a-zA-Z0-9_]+)/);
+                if (match) {
+                    nodes.push({ label: match[2], type: match[1], y: 100 + (nodes.length * 40), x: w / 2 + (Math.sin(nodes.length) * 40) });
+                }
+            });
+
+            // Draw Paths
+            ctx.strokeStyle = 'rgba(0, 242, 255, 0.2)';
+            ctx.lineWidth = 1;
+            for (let i = 1; i < nodes.length; i++) {
+                ctx.beginPath();
+                ctx.moveTo(nodes[0].x, nodes[0].y);
+                ctx.lineTo(nodes[i].x, nodes[i].y);
+                ctx.stroke();
+            }
+
+            // Draw Nodes
+            nodes.forEach(node => {
+                const color = node.type === 'core' ? '#bc13fe' : (node.type === 'class' ? '#00f2ff' : '#10b981');
+
+                // Glow
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = color;
+
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, 5, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = 'rgba(255,255,255,0.7)';
+                ctx.font = '10px Inter';
+                ctx.fillText(node.label, node.x + 10, node.y + 4);
+            });
+        }
+
+        async function runSystem() {
+            const code = editor.getValue();
+            const ext = currentFile.split('.').pop();
+            let lang = 'python';
+            if (ext === 'rs') lang = 'rust';
+            else if (ext === 'js') lang = 'javascript';
+
+            logTerminal(`[EXEC] Running ${currentFile}...`);
+
+            try {
+                const res = await fetch('/api/run_code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: code, lang: lang, wait: true })
+                }).then(r => r.json());
+
+                if (res.success) {
+                    logTerminal(`<span class="text-green-400">SUCCESS:</span><br>${res.output.replace(/\n/g, '<br>')}`);
+                } else {
+                    logTerminal(`<span class="text-red-400">ERROR DETECTED:</span><br>${res.output.replace(/\n/g, '<br>')}`);
+                    logTerminal("🧬 <span class='text-purple-400'>Neural Self-Healing:</span> Analyzing failure pattern...");
+                    debugWithAI(res.output);
+                }
+            } catch (e) {
+                logTerminal(`Execution Bridge Failed: ${e.message}`);
+            }
+        }
+
+        async function debugWithAI(errorMsg) {
+            const code = editor.getValue();
+            logTerminal("🐞 Debugging code with Zenith Brain...");
+            setNeuralState('thinking');
+
+            try {
+                const res = await fetch('/api/debug_code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: code, error: errorMsg, lang: currentFile.split('.').pop() === 'py' ? 'python' : 'javascript' })
+                }).then(r => r.json());
+
+                if (res.status === 'success') {
+                    addMessage(res.analysis, 'ai');
+                    logTerminal("✅ Analysis complete. Suggested fixes in Neural Sidebar.");
+                }
+            } catch (e) {
+                logTerminal("❌ Debug Bridge Failed.");
+            }
+            setNeuralState('idle');
+        }
+
+        function logTerminal(msg) {
+            const term = document.getElementById('terminal-content');
+            const entry = document.createElement('div');
+            entry.innerHTML = `<span class="text-cyan-500">></span> ${msg}`;
+            term.appendChild(entry);
+            term.parentElement.scrollTop = term.parentElement.scrollHeight;
+        }
+    </script>
+</body>
+
+</html>

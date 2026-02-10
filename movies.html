@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cine-Match | Bankoo AI</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a0a0e 0%, #2d1a1f 100%);
+            color: #f1f5f9;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .nav-header {
+            background: rgba(26, 10, 14, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 0, 110, 0.2);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: #ff006e;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-btn {
+            background: rgba(255, 0, 110, 0.1);
+            border: 1px solid rgba(255, 0, 110, 0.3);
+            color: #ff006e;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 0, 110, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 0, 110, 0.3);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 30px;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .hero-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff006e, #ff6b9d);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 15px;
+            max-width: 800px;
+            margin: 0 auto 40px;
+        }
+
+        .search-input {
+            flex: 1;
+            background: rgba(30, 20, 26, 0.8);
+            border: 2px solid rgba(255, 0, 110, 0.3);
+            color: white;
+            padding: 18px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: #ff006e;
+            box-shadow: 0 0 20px rgba(255, 0, 110, 0.2);
+        }
+
+        .search-btn {
+            background: linear-gradient(135deg, #ff006e, #ff6b9d);
+            border: none;
+            color: white;
+            padding: 18px 40px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255, 0, 110, 0.4);
+        }
+
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .movie-card {
+            background: rgba(30, 20, 26, 0.6);
+            border: 1px solid rgba(255, 0, 110, 0.2);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 32px rgba(255, 0, 110, 0.3);
+            border-color: #ff006e;
+        }
+
+        .movie-poster {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            background: linear-gradient(135deg, rgba(255, 0, 110, 0.2), rgba(176, 38, 255, 0.2));
+        }
+
+        .movie-info {
+            padding: 16px;
+        }
+
+        .movie-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            overflow: hidden;
+        }
+
+        .movie-rating {
+            color: #fbbf24;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .movie-year {
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        .placeholder {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 100px 20px;
+        }
+
+        .placeholder-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .quick-picks {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .quick-picks h3 {
+            color: #ff006e;
+            margin-bottom: 20px;
+        }
+
+        .genre-btn {
+            background: rgba(255, 0, 110, 0.1);
+            border: 1px solid rgba(255, 0, 110, 0.3);
+            color: #ff6b9d;
+            padding: 10px 20px;
+            border-radius: 20px;
+            margin: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .genre-btn:hover {
+            background: rgba(255, 0, 110, 0.2);
+            border-color: #ff006e;
+            color: #ff006e;
+        }
+
+        /* MAXIMUM PREMIUM ENHANCEMENTS */
+
+        .movie-card::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(135deg, #ff006e, #ff6b9d, #b026ff);
+            background-size: 300% 300%;
+            border-radius: 18px;
+            z-index: -1;
+            opacity: 0;
+            animation: movie-glow 3s ease infinite;
+            transition: opacity 0.3s;
+        }
+
+        .movie-card:hover::before {
+            opacity: 0.6;
+        }
+
+        @keyframes movie-glow {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .search-input:focus {
+            border-color: #ff006e;
+            box-shadow: 0 0 0 4px rgba(255, 0, 110, 0.2), 0 0 30px rgba(255, 0, 110, 0.3);
+            transform: scale(1.01);
+        }
+
+        .search-btn,
+        .genre-btn {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .search-btn::after,
+        .genre-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .search-btn:active::after,
+        .genre-btn:active::after {
+            width: 400px;
+            height: 400px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 30% 40%, rgba(255, 0, 110, 0.05), transparent 50%),
+                radial-gradient(circle at 70% 60%, rgba(255, 107, 157, 0.05), transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .movie-poster {
+            transition: transform 0.5s;
+        }
+
+        .movie-card:hover .movie-poster {
+            transform: scale(1.05);
+        }
+
+        @keyframes float-movie {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .placeholder {
+            animation: float-movie 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="nav-header">
+        <div class="logo">🎬 CINE-MATCH</div>
+        <div class="nav-links">
+            <button class="nav-btn" onclick="window.location.href='bankoo_ui.html'">🏠 Home</button>
+            <button class="nav-btn" onclick="window.location.href='doc_genius.html'">📚 PDF</button>
+            <button class="nav-btn" onclick="window.location.href='analytics.html'">📊 Analytics</button>
+            <button class="nav-btn" onclick="window.location.href='market.html'">📈 Market</button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero">
+            <div class="hero-icon">🍿</div>
+            <h1>Cine-Match Movie Hub</h1>
+            <p style="color: #ffc2d4; font-size: 18px;">Discover amazing movies with TMDB/OMDB integration and
+                AI-powered
+                recommendations</p>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <input type="text" class="search-input" id="movieSearch"
+                placeholder="Search for movies by title, actor, or genre..."
+                onkeydown="if(event.key==='Enter')searchMovies()">
+            <button class="search-btn" onclick="searchMovies()">🔍 Search</button>
+        </div>
+
+        <!-- Quick Genre Picks -->
+        <div class="quick-picks">
+            <h3>🎯 Quick Picks</h3>
+            <button class="genre-btn" onclick="searchGenre('action')">⚡ Action</button>
+            <button class="genre-btn" onclick="searchGenre('comedy')">😂 Comedy</button>
+            <button class="genre-btn" onclick="searchGenre('drama')">🎭 Drama</button>
+            <button class="genre-btn" onclick="searchGenre('sci-fi')">🚀 Sci-Fi</button>
+            <button class="genre-btn" onclick="searchGenre('thriller')">🔪 Thriller</button>
+            <button class="genre-btn" onclick="searchGenre('romance')">❤️ Romance</button>
+            <button class="genre-btn" onclick="searchGenre('horror')">👻 Horror</button>
+        </div>
+
+        <!-- Movie Grid -->
+        <div class="movie-grid" id="movieGrid">
+            <div class="placeholder">
+                <div class="placeholder-icon">🎬</div>
+                <h3 style="color: #ff006e; margin-bottom: 10px;">Start Your Movie Journey</h3>
+                <p style="color: #94a3b8;">Search for a movie or pick a genre to explore!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function searchMovies() {
+            const query = document.getElementById('movieSearch').value.trim();
+            if (!query) {
+                alert('Please enter a movie name');
+                return;
+            }
+
+            const grid = document.getElementById('movieGrid');
+            grid.innerHTML = '<div class="placeholder"><div class="placeholder-icon">⏳</div><h3 style="color: #ff006e;">Searching Cinematic Data...</h3></div>';
+
+            try {
+                // Send to Bankoo AI backend
+                const response = await fetch('/api/send_input', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: `Find movie ${query}` })
+                });
+
+                // In real implementation, you'd poll for movie data updates
+                setTimeout(() => {
+                    grid.innerHTML = '<div class="placeholder"><div class="placeholder-icon">🔎</div><h3 style="color: #ff006e;">Check the main chat for results!</h3><p style="color: #94a3b8;">Movie information will appear in Bankoo\'s main interface</p></div>';
+                }, 1000);
+
+            } catch (error) {
+                grid.innerHTML = '<div class="placeholder"><div class="placeholder-icon">❌</div><h3 style="color: #ff006e;">Connection Error</h3><p style="color: #94a3b8;">Make sure Bankoo backend is running</p></div>';
+                console.error(error);
+            }
+        }
+
+        async function searchGenre(genre) {
+            document.getElementById('movieSearch').value = `Best ${genre} movies`;
+            searchMovies();
+        }
+
+        // Example function to render movies (you'd call this from polling updates)
+        function renderMovie(movieData) {
+            const grid = document.getElementById('movieGrid');
+
+            // Clear placeholder if first movie
+            if (grid.querySelector('.placeholder')) {
+                grid.innerHTML = '';
+            }
+
+            const card = document.createElement('div');
+            card.className = 'movie-card';
+            card.innerHTML = `
+                <img class="movie-poster" src="${movieData.poster || 'https://via.placeholder.com/220x300'}" alt="${movieData.title}">
+                <div class="movie-info">
+                    <div class="movie-title">${movieData.title}</div>
+                    <div class="movie-rating">⭐ ${movieData.rating || 'N/A'}/10</div>
+                    <div class="movie-year">${movieData.year || 'Unknown'}</div>
+                </div>
+            `;
+
+            grid.appendChild(card);
+        }
+    </script>
+</body>
+
+</html>

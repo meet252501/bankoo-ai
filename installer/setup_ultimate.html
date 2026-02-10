@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bankoo AI - Ultimate Setup Wizard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1d3a 50%, #0f1628 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeIn 0.8s ease;
+        }
+        
+        .header h1 {
+            font-size: 52px;
+            font-weight: 800;
+            background: linear-gradient(90deg, #00d4ff 0%, #7b2ff7 50%, #ff006e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .wizard {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(0, 212, 255, 0.2);
+            border-radius: 25px;
+            padding: 40px;
+            animation: slideUp 0.8s ease;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .stepper {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .stepper::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: rgba(0, 212, 255, 0.2);
+            z-index: -1;
+        }
+        
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+        
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.5);
+            border: 3px solid rgba(0, 212, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active .step-circle {
+            background: linear-gradient(135deg, #00d4ff, #7b2ff7);
+            border-color: #00d4ff;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+        
+        .step-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .step.active .step-label {
+            color: #00d4ff;
+            font-weight: 600;
+        }
+        
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+            animation: pageSlide 0.5s ease;
+        }
+        
+        @keyframes pageSlide {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(90deg, #00d4ff, #7b2ff7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .page-subtitle {
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(0, 212, 255, 0.6);
+            transform: translateY(-2px);
+        }
+        
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #00d4ff;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .api-provider {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(0, 212, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .api-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .api-name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .free-badge {
+            background: linear-gradient(90deg, #00ff88, #00d4ff);
+            color: #000;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        
+        .paid-badge {
+            background: #ff006e;
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        
+        .api-info {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 10px;
+        }
+        
+        .api-input {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        input[type="text"], input[type="password"] {
+            flex: 1;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: rgba(0, 212, 255, 0.8);
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, #00d4ff, #7b2ff7);
+            color: #fff;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .btn-link {
+            background: transparent;
+            border: 2px solid rgba(0, 212, 255, 0.5);
+            color: #00d4ff;
+        }
+        
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .checkbox-item {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(0, 212, 255, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .checkbox-item:hover {
+            border-color: rgba(0, 212, 255, 0.5);
+            background: rgba(0, 212, 255, 0.05);
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .checkbox-label {
+            flex: 1;
+            font-size: 14px;
+        }
+        
+        .checkbox-desc {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            margin-bottom: 15px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: space-between;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 50px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 3px solid rgba(0, 212, 255, 0.3);
+            border-radius: 25px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #00d4ff, #7b2ff7, #ff006e);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+        
+        .success-icon {
+            font-size: 100px;
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .feature-list {
+            list-style: none;
+        }
+        
+        .feature-list li {
+            padding: 10px 0;
+            font-size: 16px;
+        }
+        
+        .feature-list li::before {
+            content: '✅ ';
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 BANKOO AI</h1>
+            <p style="font-size: 18px; color: rgba(255,255,255,0.7);">Ultimate Professional Setup Wizard</p>
+        </div>
+        
+        <div class="wizard">
+            <!-- Stepper -->
+            <div class="stepper">
+                <div class="step active" data-step="1">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">Welcome</div>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">API Keys</div>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">Agents</div>
+                </div>
+                <div class="step" data-step="4">
+                    <div class="step-circle">4</div>
+                    <div class="step-label">Modules</div>
+                </div>
+                <div class="step" data-step="5">
+                    <div class="step-circle">5</div>
+                    <div class="step-label">Voice</div>
+                </div>
+                <div class="step" data-step="6">
+                    <div class="step-circle">6</div>
+                    <div class="step-label">Preferences</div>
+                </div>
+                <div class="step" data-step="7">
+                    <div class="step-circle">7</div>
+                    <div class="step-label">Complete</div>
+                </div>
+            </div>
+            
+            <!-- Page 1: Welcome -->
+            <div class="page active" id="page1">
+                <h2 class="page-title">Welcome to Bankoo AI Setup</h2>
+                <p class="page-subtitle">Complete one-time configuration - no future setup needed!</p>
+                
+                <div class="card">
+                    <div class="card-title">🎯 What You'll Configure</div>
+                    <ul class="feature-list">
+                        <li>API Keys for 6+ providers (with free options)</li>
+                        <li>16 AI Council Agents selection</li>
+                        <li>12 Brain Modules selection</li>
+                        <li>23 Language voices</li>
+                        <li>Deep preferences & customization</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">💡 Recommended Setup</div>
+                    <p style="color: rgba(255,255,255,0.8); line-height: 1.6;">
+                        <strong style="color: #00ff88;">Free Option:</strong> Groq + Cerebras + Gemini (100% free, very capable)<br>
+                        <strong style="color: #00d4ff;">Best Value:</strong> Add DeepSeek ($0.27/1M tokens) for SOTA coding<br>
+                        <strong style="color: #ff006e;">Full Power:</strong> All providers including GPT-4
+                    </p>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn btn-secondary" disabled>← Back</button>
+                    <button class="btn btn-primary" onclick="nextPage()">Let's Start →</button>
+                </div>
+            </div>
+            
+            <!-- Page 2: API Keys -->
+            <div class="page" id="page2">
+                <h2 class="page-title">Configure API Keys</h2>
+                <p class="page-subtitle">Get your free API keys - we'll guide you through each one</p>
+                
+                <!-- Groq -->
+                <div class="api-provider">
+                    <div class="api-header">
+                        <div class="api-name">⚡ Groq</div>
+                        <div class="free-badge">FREE</div>
+                    </div>
+                    <div class="api-info">
+                        Ultra-fast (600+ tokens/sec) • 14,400 requests/day free<br>
+                        Models: llama-3.3-70b-versatile, llama-3.1-8b-instant
+                    </div>
+                    <div class="api-input">
+                        <input type="password" id="groq_key" placeholder="Paste your Groq API key">
+                        <button class="btn btn-link" onclick="window.open('https://console.groq.com/', '_blank')">Get Key</button>
+                    </div>
+                </div>
+                
+                <!-- Cerebras -->
+                <div class="api-provider">
+                    <div class="api-header">
+                        <div class="api-name">🚀 Cerebras</div>
+                        <div class="free-badge">FREE</div>
+                    </div>
+                    <div class="api-info">
+                        Fastest inference available • Generous free tier<br>
+                        Models: llama-3.3-70b
+                    </div>
+                    <div class="api-input">
+                        <input type="password" id="cerebras_key" placeholder="Paste your Cerebras API key">
+                        <button class="btn btn-link" onclick="window.open('https://cloud.cerebras.ai/', '_blank')">Get Key</button>
+                    </div>
+                </div>
+                
+                <!-- DeepSeek -->
+                <div class="api-provider">
+                    <div class="api-header">
+                        <div class="api-name">🧠 DeepSeek</div>
+                        <div class="paid-badge">$0.27/1M</div>
+                    </div>
+                    <div class="api-info">
+                        SOTA Coding Model • Extremely cheap<br>
+                        Models: deepseek-chat (V3), deepseek-coder
+                    </div>
+                    <div class="api-input">
+                        <input type="password" id="deepseek_key" placeholder="Paste your DeepSeek API key (optional)">
+                        <button class="btn btn-link" onclick="window.open('https://platform.deepseek.com/', '_blank')">Get Key</button>
+                    </div>
+                </div>
+                
+                <!-- Gemini -->
+                <div class="api-provider">
+                    <div class="api-header">
+                        <div class="api-name">🤖 Google Gemini</div>
+                        <div class="free-badge">FREE</div>
+                    </div>
+                    <div class="api-info">
+                        60 requests/min free • Multimodal capabilities<br>
+                        Models: gemini-1.5-pro, gemini-1.5-flash
+                    </div>
+                    <div class="api-input">
+                        <input type="password" id="gemini_key" placeholder="Paste your Gemini API key">
+                        <button class="btn btn-link" onclick="window.open('https://makersuite.google.com/app/apikey', '_blank')">Get Key</button>
+                    </div>
+                </div>
+                
+                <!-- OpenRouter -->
+                <div class="api-provider">
+                    <div class="api-header">
+                        <div class="api-name">🔀 OpenRouter</div>
+                        <div class="paid-badge">PAID</div>
+                    </div>
+                    <div class="api-info">
+                        100+ models • GPT-4, Claude, Gemini, etc.<br>
+                        Pay-per-use pricing
+                    </div>
+                    <div class="api-input">
+                        <input type="password" id="openrouter_key" placeholder="Paste your OpenRouter API key (optional)">
+                        <button class="btn btn-link" onclick="window.open('https://openrouter.ai/', '_blank')">Get Key</button>
+                    </div>
+                </div>
+                
+                <!-- OpenAI -->
+                <div class="api-provider">
+                    <div class="api-header">
+                        <div class="api-name">🔥 OpenAI</div>
+                        <div class="paid-badge">PREMIUM</div>
+                    </div>
+                    <div class="api-info">
+                        GPT-4 Turbo, GPT-3.5 • $10-30/1M tokens<br>
+                        Industry standard
+                    </div>
+                    <div class="api-input">
+                        <input type="password" id="openai_key" placeholder="Paste your OpenAI API key (optional)">
+                        <button class="btn btn-link" onclick="window.open('https://platform.openai.com/api-keys', '_blank')">Get Key</button>
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="prevPage()">← Back</button>
+                    <button class="btn btn-primary" onclick="saveKeysAndNext()">Save & Continue →</button>
+                </div>
+            </div>
+            
+            <!-- Page 3: AI Agents -->
+            <div class="page" id="page3">
+                <h2 class="page-title">Select AI Council Agents</h2>
+                <p class="page-subtitle">Choose which expert agents to enable (recommended: all)</p>
+                
+                <div class="card">
+                    <div class="card-title">👔 Executive Leadership</div>
+                    <div class="checkbox-grid">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="agent_ceo" checked>
+                            <div>
+                                <div class="checkbox-label">CEO</div>
+                                <div class="checkbox-desc">Decision Maker</div>
+                            </div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="agent_cto" checked>
+                            <div>
+                                <div class="checkbox-label">CTO</div>
+                                <div class="checkbox-desc">Architecture</div>
+                            </div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="agent_cso" checked>
+                            <div>
+                                <div class="checkbox-label">CSO</div>
+                                <div class="checkbox-desc">Strategy</div>
+                            </div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="agent_ciso" checked>
+                            <div>
+                                <div class="checkbox-label">CISO</div>
+                                <div class="checkbox-desc">Security</div>
+                            </div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="agent_cdo" checked>
+                            <div>
+                                <div class="checkbox-label">CDO</div>
+                                <div class="checkbox-desc">Design</div>
+                            </div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="agent_cco" checked>
+                            <div>
+                                <div class="checkbox-label">CCO</div>
+                                <div class="checkbox-desc">Communications</div>
+                            </div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="agent_cro" checked>
+                            <div>
+                                <div class="checkbox-label">CRO</div>
+                                <div class="checkbox-desc">Risk/Review</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">👨‍💻 Engineering Team</div>
+                    <div class="checkbox-grid">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="agent_vp" checked>
+                            <div>
+                                <div class="checkbox-label">VP Engineering</div>
+                                <div class="checkbox-desc">Complex Logic</div>
+                            </div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="agent_scientist" checked>
+                            <div>
+                                <div class="checkbox-label">Chief Scientist</div>
+                                <div class="checkbox-desc">Math & Deep Logic</div>
+                            </div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="agent_qa" checked>
+                            <div>
+                                <div class="checkbox-label">QA Lead</div>
+                                <div class="checkbox-desc">Quality</div>
+                            </div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="agent_principal" checked>
+                            <div>
+                                <div class="checkbox-label">Principal Engineer</div>
+                                <div class="checkbox-desc">Debugging</div>
+                            </div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="agent_senior" checked>
+                            <div>
+                                <div class="checkbox-label">Senior Engineer</div>
+                                <div class="checkbox-desc">Fast Features</div>
+                            </div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="agent_data" checked>
+                            <div>
+                                <div class="checkbox-label">Data Architect</div>
+                                <div class="checkbox-desc">Database Expert</div>
+                            </div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="agent_platform" checked>
+                            <div>
+                                <div class="checkbox-label">Platform Architect</div>
+                                <div class="checkbox-desc">API & Systems</div>
+                            </div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="agent_perf" checked>
+                            <div>
+                                <div class="checkbox-label">Performance</div>
+                                <div class="checkbox-desc">Optimization</div>
+                            </div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="agent_writer" checked>
+                            <div>
+                                <div class="checkbox-label">Tech Writer</div>
+                                <div class="checkbox-desc">Documentation</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="prevPage()">← Back</button>
+                    <button class="btn btn-primary" onclick="nextPage()">Continue →</button>
+                </div>
+            </div>
+            
+            <!-- Page 4: Brain Modules -->
+            <div class="page" id="page4">
+                <h2 class="page-title">Select Brain Modules</h2>
+                <p class="page-subtitle">Choose which capabilities to enable</p>
+                
+                <div class="card">
+                    <div class="card-title">🧠 Core Modules</div>
+                    <div class="checkbox-grid">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="brain_assistant" checked disabled>
+                            <div>
+                                <div class="checkbox-label">Assistant Brain</div>
+                                <div class="checkbox-desc">Required</div>
+                            </div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="brain_memory" checked>
+                            <div>
+                                <div class="checkbox-label">Memory Brain</div>
+                                <div class="checkbox-desc">Persistence</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">📊 Analysis Modules</div>
+                    <div class="checkbox-grid">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="brain_vision" checked>
+                            <div>
+                                <div class="checkbox-label">Vision Brain</div>
+                                <div class="checkbox-desc">Image Analysis</div>
+                            </div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="brain_youtube" checked>
+                            <div>
+                                <div class="checkbox-label">YouTube Brain</div>
+                                <div class="checkbox-desc">Video Analysis</div>
+                            </div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="brain_doc" checked>
+                            <div>
+                                <div class="checkbox-label">Doc Brain</div>
+                                <div class="checkbox-desc">PDF Processing</div>
+                            </div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="brain_analytics" checked>
+                            <div>
+                                <div class="checkbox-label">Analytics Brain</div>
+                                <div class="checkbox-desc">Data Analysis</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">🤖 Automation Modules</div>
+                    <div class="checkbox-grid">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="brain_scraper" checked>
+                            <div>
+                                <div class="checkbox-label">Scraper Brain</div>
+                                <div class="checkbox-desc">Web Scraping</div>
+                            </div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="brain_owl" checked>
+                            <div>
+                                <div class="checkbox-label">OWL Brain</div>
+                                <div class="checkbox-desc">Task Execution</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">🚀 Advanced Modules</div>
+                    <div class="checkbox-grid">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="brain_airllm">
+                            <div>
+                                <div class="checkbox-label">AirLLM Brain</div>
+                                <div class="checkbox-desc">Local AI Models</div>
+                            </div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="brain_notes" checked>
+                            <div>
+                                <div class="checkbox-label">Smart Notes</div>
+                                <div class="checkbox-desc">Note-taking</div>
+                            </div>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="brain_civitai">
+                            <div>
+                                <div class="checkbox-label">Civitai Brain</div>
+                                <div class="checkbox-desc">AI Art</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="prevPage()">← Back</button>
+                    <button class="btn btn-primary" onclick="nextPage()">Continue →</button>
+                </div>
+            </div>
+            
+            <!-- Page 5: Voice Settings -->
+            <div class="page" id="page5">
+                <h2 class="page-title">Voice Configuration</h2>
+                <p class="page-subtitle">Select default language and voice preferences</p>
+                
+                <div class="card">
+                    <div class="card-title">🎤 Default Voice Language</div>
+                    <select id="default_lang">
+                        <optgroup label="Indian Languages">
+                            <option value="gujarati" selected>Gujarati</option>
+                            <option value="hindi">Hindi</option>
+                            <option value="tamil">Tamil</option>
+                            <option value="telugu">Telugu</option>
+                            <option value="marathi">Marathi</option>
+                            <option value="bengali">Bengali</option>
+                        </optgroup>
+                        <optgroup label="European Languages">
+                            <option value="english">English (US)</option>
+                            <option value="english-uk">English (UK)</option>
+                            <option value="spanish">Spanish</option>
+                            <option value="french">French</option>
+                            <option value="german">German</option>
+                            <option value="italian">Italian</option>
+                            <option value="portuguese">Portuguese</option>
+                            <option value="russian">Russian</option>
+                            <option value="dutch">Dutch</option>
+                            <option value="polish">Polish</option>
+                            <option value="turkish">Turkish</option>
+                        </optgroup>
+                        <optgroup label="Asian Languages">
+                            <option value="chinese">Chinese</option>
+                            <option value="japanese">Japanese</option>
+                            <option value="korean">Korean</option>
+                            <option value="arabic">Arabic</option>
+                            <option value="thai">Thai</option>
+                            <option value="vietnamese">Vietnamese</option>
+                        </optgroup>
+                    </select>
+                    
+                    <div class="card-title">🎙️ Voice Gender</div>
+                    <select id="voice_gender">
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                    
+                    <div class="checkbox-item" style="margin-top: 15px;">
+                        <input type="checkbox" id="auto_voice" checked>
+                        <div>
+                            <div class="checkbox-label">Enable Auto Voice Switching</div>
+                            <div class="checkbox-desc">Automatically use native voice when you say "speak in Spanish", etc.</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="prevPage()">← Back</button>
+                    <button class="btn btn-primary" onclick="nextPage()">Continue →</button>
+                </div>
+            </div>
+            
+            <!-- Page 6: Preferences -->
+            <div class="page" id="page6">
+                <h2 class="page-title">Additional Preferences</h2>
+                <p class="page-subtitle">Fine-tune your Bankoo AI experience</p>
+                
+                <div class="card">
+                    <div class="card-title">🎨 UI Theme</div>
+                    <select id="ui_theme">
+                        <option value="dark" selected>Dark (Default)</option>
+                        <option value="light">Light</option>
+                        <option value="cyberpunk">Cyberpunk</option>
+                    </select>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">🤖 AI Model Assignments</div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; color: rgba(255,255,255,0.8);">Primary Chat Model</label>
+                        <select id="primary_model">
+                            <option value="cerebras/llama-3.3-70b" selected>Llama 3.3 70B (Cerebras)</option>
+                            <option value="groq/llama-3.3-70b-versatile">Llama 3.3 70B (Groq)</option>
+                            <option value="deepseek/deepseek-chat">DeepSeek Chat V3</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; color: rgba(255,255,255,0.8);">Coding Model</label>
+                        <select id="coding_model">
+                            <option value="deepseek/deepseek-chat" selected>DeepSeek Chat V3 (SOTA)</option>
+                            <option value="cerebras/llama-3.3-70b">Llama 3.3 70B</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">⚙️ Features</div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="enable_animations" checked>
+                        <div>
+                            <div class="checkbox-label">Enable UI Animations</div>
+                            <div class="checkbox-desc">Smooth transitions and effects</div>
+                        </div>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="enable_typing" checked>
+                        <div>
+                            <div class="checkbox-label">Show Typing Indicator</div>
+                            <div class="checkbox-desc">See when AI is "thinking"</div>
+                        </div>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="enable_council" checked>
+                        <div>
+                            <div class="checkbox-label">Enable AI Council</div>
+                            <div class="checkbox-desc">Multi-expert collaboration</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="prevPage()">← Back</button>
+                    <button class="btn btn-primary" onclick="generateConfig()">Generate Configuration →</button>
+                </div>
+            </div>
+            
+            <!-- Page 7: Complete -->
+            <div class="page" id="page7">
+                <div class="success-icon">🎉</div>
+                <h2 class="page-title" style="text-align: center;">Setup Complete!</h2>
+                <p class="page-subtitle" style="text-align: center;">Your configuration has been saved</p>
+                
+                <div class="card">
+                    <div class="card-title">✅ Configuration Summary</div>
+                    <ul class="feature-list" id="summary">
+                        <li>Loading summary...</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">📁 Files Created</div>
+                    <p style="color: rgba(255,255,255,0.8); line-height: 1.8;">
+                        • <code style="background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 5px;">.env</code> - Your API keys (keep secret!)<br>
+                        • <code style="background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 5px;">config.py</code> - Auto-generated configuration<br>
+                        • <code style="background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 5px;">preferences.json</code> - UI settings
+                    </p>
+                </div>
+                
+                <div class="button-group" style="justify-content: center;">
+                    <button class="btn btn-primary" onclick="downloadConfig()" style="min-width: 300px;">💾 Download Configuration Files</button>
+                </div>
+                
+                <p style="text-align: center; margin-top: 30px; color: rgba(255,255,255,0.6);">
+                    You can close this window and start using Bankoo AI!
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentPage = 1;
+        let config = {
+            api_keys: {},
+            agents: {},
+            modules: {},
+            voice: {},
+            preferences: {}
+        };
+        
+        function nextPage() {
+            if (currentPage < 7) {
+                document.getElementById('page' + currentPage).classList.remove('active');
+                currentPage++;
+                document.getElementById('page' + currentPage).classList.add('active');
+                updateStepper();
+            }
+        }
+        
+        function prevPage() {
+            if (currentPage > 1) {
+                document.getElementById('page' + currentPage).classList.remove('active');
+                currentPage--;
+                document.getElementById('page' + currentPage).classList.add('active');
+                updateStepper();
+            }
+        }
+        
+        function updateStepper() {
+            document.querySelectorAll('.step').forEach((step, index) => {
+                step.classList.remove('active');
+                if (index + 1 === currentPage) {
+                    step.classList.add('active');
+                }
+            });
+        }
+        
+        function saveKeysAndNext() {
+            config.api_keys = {
+                GROQ_API_KEY: document.getElementById('groq_key').value,
+                CEREBRAS_API_KEY: document.getElementById('cerebras_key').value,
+                DEEPSEEK_API_KEY: document.getElementById('deepseek_key').value,
+                GEMINI_API_KEY: document.getElementById('gemini_key').value,
+                OPENROUTER_API_KEY: document.getElementById('openrouter_key').value,
+                OPENAI_API_KEY: document.getElementById('openai_key').value
+            };
+            nextPage();
+        }
+        
+        function generateConfig() {
+            // Collect agents
+            config.agents = {
+                ceo: document.getElementById('agent_ceo').checked,
+                cto: document.getElementById('agent_cto').checked,
+                cso: document.getElementById('agent_cso').checked,
+                // ... etc
+            };
+            
+            // Collect modules
+            config.modules = {
+                memory: document.getElementById('brain_memory').checked,
+                vision: document.getElementById('brain_vision').checked,
+                // ... etc
+            };
+            
+            // Collect voice
+            config.voice = {
+                default_language: document.getElementById('default_lang').value,
+                gender: document.getElementById('voice_gender').value,
+                auto_switch: document.getElementById('auto_voice').checked
+            };
+            
+            // Collect preferences
+            config.preferences = {
+                ui_theme: document.getElementById('ui_theme').value,
+                primary_model: document.getElementById('primary_model').value,
+                coding_model: document.getElementById('coding_model').value,
+                animations: document.getElementById('enable_animations').checked,
+                typing_indicator: document.getElementById('enable_typing').checked,
+                ai_council: document.getElementById('enable_council').checked
+            };
+            
+            // Generate summary
+            let keyCount = Object.values(config.api_keys).filter(k => k).length;
+            let agentCount = Object.values(config.agents).filter(a => a).length;
+            let moduleCount = Object.values(config.modules).filter(m => m).length;
+            
+            document.getElementById('summary').innerHTML = `
+                <li>${keyCount} API key(s) configured</li>
+                <li>${agentCount} AI agents enabled</li>
+                <li>${moduleCount} brain modules enabled</li>
+                <li>Voice: ${config.voice.default_language} (${config.voice.gender})</li>
+                <li>Primary model: ${config.preferences.primary_model}</li>
+                <li>Coding model: ${config.preferences.coding_model}</li>
+                <li>UI theme: ${config.preferences.ui_theme}</li>
+            `;
+            
+            nextPage();
+        }
+        
+        function downloadConfig() {
+            // Send config to Flask backend
+            fetch('http://localhost:5555/api/save-config', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(config)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ Configuration saved successfully!\n\n' + 
+                          'Files created:\n' +
+                          '• .env (API keys)\n' +
+                          '• installer_config.json\n' +
+                          '• config_updates.py\n\n' +
+                          'You can now close this window and start Bankoo AI!');
+                } else {
+                    alert('❌ Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert('❌ Failed to save configuration.\n\nMake sure the Flask server is running!\n\nError: ' + error);
+            });
+        }
+    </script>
+</body>
+</html>

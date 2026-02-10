@@ -1,0 +1,71 @@
+# ============================================
+# BANKOO AI - DEPENDENCIES
+# ============================================
+# Core Framework
+flask==3.0.0
+flask-cors==4.0.0
+gunicorn==21.2.0
+
+# HTTP & Requests
+requests==2.31.0
+
+# System Utilities
+psutil==5.9.6
+colorama==0.4.6
+schedule==1.2.0
+
+# AI & LLM APIs
+openai==1.12.0
+google-generativeai==0.3.2
+groq==0.4.1
+
+# Speech & Audio
+vosk==0.3.45
+edge-tts==6.1.9
+openai-whisper==20231117
+
+# Document Processing
+PyPDF2==3.0.1
+
+# RAG & Vector Database
+langchain==0.1.6
+langchain-community==0.0.19
+faiss-cpu==1.7.4
+sentence-transformers==2.3.1
+tiktoken==0.5.2
+
+# Data Science & ML
+pandas==2.1.4
+numpy==1.26.3
+scikit-learn==1.4.0
+catboost==1.2.2
+matplotlib==3.8.2
+seaborn==0.13.1
+dill==0.3.7
+
+# Finance & Market Data
+yfinance==0.2.35
+
+# Media & Entertainment
+tmdbv3api==1.9.0
+
+# Computer Vision
+opencv-python==4.9.0.80
+mediapipe==0.10.9
+
+# Deep Learning
+torch==2.1.2
+transformers==4.37.2
+accelerate==0.26.1
+huggingface_hub==0.20.3
+airllm==2.8.4
+
+# Automation
+pyautogui==0.9.54
+pyperclip==1.8.2
+
+# Telegram Bot
+python-telegram-bot==20.7
+
+# Google APIs
+google-api-python-client==2.116.0

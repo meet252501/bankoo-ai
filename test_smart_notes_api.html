@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smart Notes Debug Test</title>
+</head>
+<body>
+    <h1>Smart Notes API Test</h1>
+    <button onclick="testCreateNote()">Test Create Note</button>
+    <button onclick="testGetNotes()">Test Get Notes</button>
+    <div id="result"></div>
+    
+    <script>
+        async function testCreateNote() {
+            try {
+                const res = await fetch('http://127.0.0.1:5001/api/notes', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        title: 'Test Note',
+                        content: 'This is a test',
+                        tags: ['test']
+                    })
+                });
+                const data = await res.json();
+                document.getElementById('result').innerHTML = 
+                    '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                alert('✅ Create Note: SUCCESS');
+            } catch (e) {
+                alert('❌ Create Note FAILED: ' + e.message);
+                console.error(e);
+            }
+        }
+        
+        async function testGetNotes() {
+            try {
+                const res = await fetch('http://127.0.0.1:5001/api/notes');
+                const data = await res.json();
+                document.getElementById('result').innerHTML = 
+                    '<pre>Found ' + data.length + ' notes:\n' + 
+                    JSON.stringify(data, null, 2) + '</pre>';
+                alert('✅ Get Notes: SUCCESS (' + data.length + ' notes)');
+            } catch (e) {
+                alert('❌ Get Notes FAILED: ' + e.message);
+                console.error(e);
+            }
+        }
+    </script>
+</body>
+</html>
