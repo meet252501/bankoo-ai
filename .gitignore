@@ -1,136 +1,14 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Virtual Environment
-venv/
-ENV/
-env/
-.venv
-
-# IDEs
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-.DS_Store
-
-# Environment variables
 .env
 .env.local
-.env.*.local
-config_local.py
-
-# Databases
+.env*.local
 *.db
-*.sqlite
-*.sqlite3
-bankoo_memory.db
-bankoo_sandbox.db
-
-# Logs
-logs/
-*.log
-audit_*.txt
-scanned_history.txt
-
-# Audio/Media files
-*.mp3
-*.wav
-*.ogg
-zenith_voice_*.mp3
-
-# Large binaries
-ngrok.exe
-ngrok.zip
-*.exe
-*.dll
-
-# Node modules
-node_modules/
-package-lock.json
-yarn.lock
-
-# Test files (optional - uncomment if you want to exclude)
-# test_*.py
-# debug_*.py
-# gms_chal_*.py
-
-# Temporary files
-*.tmp
-*.temp
-temp/
-tmp/
-fixed_*.txt
-dir_out.txt
-profile_*.txt
-
-# Data files
-data_hub/
-knowledge_base/
-*.csv
-*.pdf
-
-# Model files (large)
-vosk_model/
-portable_runtimes/
-*.pth
-*.bin
-*.onnx
-
-# Screenshots and images (generated)
-*.jpg
-*.png
-*.gif
-*.webp
-bench_screen*.jpg
-mission_step_*.jpg
-v_settle_*.jpg
-google_search_debug.png
-
-# Jupyter Notebooks checkpoints
-.ipynb_checkpoints/
-
-# Coverage reports
-htmlcov/
-.coverage
-.coverage.*
-coverage.xml
-*.cover
-
-# Pytest
+__pycache__/
+*.pyc
 .pytest_cache/
-
-# MyPy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre
-.pyre/
-
-# Misc
-*.bak
-*.swp
-.DS_Store
-Thumbs.db
-desktop.ini
+node_modules/
+dist/
+build/
+*.egg-info/
+.vscode/
+.idea/
+bankoo_memory.db
