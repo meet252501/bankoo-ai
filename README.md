@@ -15,6 +15,17 @@
 
 ---
 
+> [!NOTE]
+> **🚧 A Note from the Developer**
+>
+> This is my first major open-source project! 🚀
+>
+> While I have put a lot of effort into making Bankoo AI powerful, you might encounter some bugs or performance issues in future updates. I actively welcome your feedback and reviews to help me improve it.
+>
+> Bankoo is designed to be flexible—feel free to **customize the code** to fit your own needs!
+
+---
+
 ## ✨ Features
 
 ### 🤖 **5 Specialized AI Agents**
@@ -247,7 +258,8 @@ We welcome contributions! Here's how you can help:
 
 ```bash
 # Clone your fork
-git clone https://github.com/yourusername/bankoo-ai.git
+git clone https://github.com/meet252501/bankoo-ai.git
+cd bankoo-ai
 
 # Install dev dependencies
 pip install -r requirements.txt
@@ -327,9 +339,8 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/bankoo-ai/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/bankoo-ai/discussions)
-- **Email**: your.email@example.com
+- Issues: [GitHub Issues](https://github.com/meet252501/bankoo-ai/issues)
+- Discussions: [GitHub Discussions](https://github.com/meet252501/bankoo-ai/discussions)
 
 ---
 
@@ -343,6 +354,10 @@ If you find Bankoo AI helpful, please consider giving it a star! ⭐
 
 **Made with ❤️ by the Bankoo Team**
 
-[⬆ Back to Top](#-bankoo-ai---your-ultimate-desktop-ai-assistant)
+[⬆ Back to Top](https://github.com/meet252501/bankoo-ai?tab=readme-ov-file#-bankoo-ai---your-ultimate-desktop-ai-assistant)
 
 </div>
+
+## About
+
+Ultimate Desktop AI Assistant with 5 specialized agents, multilingual support (20+ langs), and enterprise-grade features.
