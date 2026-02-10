@@ -1,14 +1,13 @@
+# Ignore environment files
 .env
-.env.local
-.env*.local
-*.db
+
+# Python cache
 __pycache__/
 *.pyc
-.pytest_cache/
-node_modules/
-dist/
-build/
-*.egg-info/
+
+# Database files
+*.db
+
+# IDE folders
 .vscode/
 .idea/
-bankoo_memory.db
